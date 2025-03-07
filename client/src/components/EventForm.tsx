@@ -204,7 +204,7 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
             location: data.location,
             url: data.url,
             notifications,
-            attendees: data.attendees?.map((a: string) => ({ name: a, email: user.email, accepted: false, responded: false })) || [],
+            attendees: data.attendees?.map((a: string) => ({ name: a, email: "default@mail.com", accepted: false, responded: false })) || [],
             recurrenceRule: rrule ? rrule.toString() : undefined,
             timezone: data.timezone,
             isPomodoro: data.isPomodoro,
@@ -323,7 +323,8 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
                                 {...register('isDoNotDisturb')}
                                 onChange={(e) => {
                                     register("isDoNotDisturb").onChange(e);
-                                    setValue("isPomodoro", !e.target.checked);
+                                    if (isPomodoro)
+                                        setValue("isPomodoro", !e.target.checked);
                                     if (e.target.checked) {
                                         setValue("title", "DO NOT DISTURB");
                                         setValue("description", "DO NOT DISTURB");
