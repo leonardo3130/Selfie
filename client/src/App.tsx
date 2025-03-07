@@ -13,6 +13,7 @@ import SignUp from './pages/Signup';
 import EventInvitation from './pages/EventInvitation';
 import ActivityInvitation from './pages/ActivityInvitation';
 import UserInfo from './pages/UserInfo';
+import Error404 from './pages/Error404';
 
 // Components
 import { Editor } from './components/Editor';
@@ -155,6 +156,9 @@ function App() {
                                 </ProtectedRoute>
                             }
                         />
+
+                        {/* Catch all route for 404 */}
+                        <Route path="*" element={<Error404/>} />
                     </Routes>
                 </div>
             </div>
