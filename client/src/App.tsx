@@ -158,7 +158,14 @@ function App() {
                         />
 
                         {/* Catch all route for 404 */}
-                        <Route path="*" element={<Error404/>} />
+                        <Route
+                            path="*"
+                            element={
+                                <ProtectedRoute requireAuth={true}>
+                                    <Error404 />
+                                </ProtectedRoute>
+                            }
+                        />
                     </Routes>
                 </div>
             </div>
