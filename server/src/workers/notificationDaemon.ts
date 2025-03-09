@@ -17,7 +17,7 @@ function sendNotification(
     title: string,
     url: string,
     notifica_desktop: boolean,
-    priority: number,  /*useless as of now*/
+    priority: number /*useless as of now*/,
     isActivity: boolean,
 ) {
     console.log(`Sending notification: ${title}`);
@@ -27,12 +27,16 @@ function sendNotification(
                 sub,
                 JSON.stringify({
                     title,
-                    body: "Ricordati dell'" + (isActivity ? "attività!" : "evento!"),
+                    body:
+                        (!isActivity ? "🔔 Event Reminder!" : "🔔 Activity Reminder!") +
+                        "\nDon't forget! 📅 " +
+                        title +
+                        " is happening soon. See you there!",
                     url,
                 }),
                 {
                     TTL: 86400, // 1 day in seconds
-                }
+                },
             )
             .then(() => console.log(`Notification sent: ${title}`))
             .catch((error) => console.error(`Error sending notification: ${error}`));
@@ -261,13 +265,17 @@ function checkNotifications(
                 console.log("Sending email notification");
                 sendEmail(
                     user.email,
-                    "Ricordati dell'" + (isActivity ? "attività!" : "evento!"),
-                    `Ricordati dell'${isActivity ? "attività" : "evento"}: ${title}`,
-                    [],
+                    (!isActivity ? "🔔 Event Reminder!" : "🔔 Activity Reminder!") +
+                    "\nDon't forget! 📅 " +
+                    title +
+                    " is happening soon. See you there!",
+                    (!isActivity ? "🔔 Event Reminder!" : "🔔 Activity Reminder!") +
+                    "\nDon't forget! 📅 " +
+                    title +
+                    " is happening soon. See you there!",
+                    []
                 );
             }
-
-
         } else {
             console.log(`Skipping notification: ${title}`);
         }

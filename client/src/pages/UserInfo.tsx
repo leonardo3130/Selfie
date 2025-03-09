@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useAuthContext } from '../hooks/useAuthContext';
-import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import { useAuthContext } from '../hooks/useAuthContext';
 
 interface UserProfileEditProps {
     onSubmit?: (userData: any) => void;
 }
 
-const UserInfo: React.FC<UserProfileEditProps> = ({ onSubmit = () => {} }) => {
+const UserInfo: React.FC<UserProfileEditProps> = ({ onSubmit = () => { } }) => {
     const { dispatch, user } = useAuthContext();
-    
+
     const [nome, setNome] = useState<string>('');
     const [cognome, setCognome] = useState<string>('');
     const [dataNascita, setDataNascita] = useState<Date>(new Date());
@@ -76,8 +76,8 @@ const UserInfo: React.FC<UserProfileEditProps> = ({ onSubmit = () => {} }) => {
 
             if (response.ok) {
                 const data = await response.json();
-                dispatch({ 
-                    type: 'UPDATE', 
+                dispatch({
+                    type: 'UPDATE',
                     payload: {
                         ...user,
                         ...updatedUser
@@ -155,10 +155,10 @@ const UserInfo: React.FC<UserProfileEditProps> = ({ onSubmit = () => {} }) => {
                             <Row className="mt-4">
                                 <Col>
                                     <h6>Notifications:</h6>
-                                    <Form.Check 
+                                    <Form.Check
                                         type="switch"
                                         id="email-switch"
-                                        label="Notifiche Email"
+                                        label="Email notifications"
                                         checked={flags.notifica_email}
                                         onChange={(e) => setFlags(prev => ({
                                             ...prev,
@@ -166,10 +166,10 @@ const UserInfo: React.FC<UserProfileEditProps> = ({ onSubmit = () => {} }) => {
                                         }))}
                                         className="mb-2"
                                     />
-                                    <Form.Check 
+                                    <Form.Check
                                         type="switch"
                                         id="desktop-switch"
-                                        label="Notifiche Desktop"
+                                        label="Desktop notifications"
                                         checked={flags.notifica_desktop}
                                         onChange={(e) => setFlags(prev => ({
                                             ...prev,
