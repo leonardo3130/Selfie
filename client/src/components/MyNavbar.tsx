@@ -7,9 +7,9 @@ import { useAuthContext } from '../hooks/useAuthContext';
 import { NavDropdown } from 'react-bootstrap';
 import { BsHouseDoor, BsCalendar3, BsStickyFill, BsClock, BsInfoCircle } from 'react-icons/bs';
 import logo from '../assets/logo.png';
-import { generateColorFromString } from '../utils/colorUtils';
 import '../css/navbar.css';
 import { TimeMachine } from './TimeMachine';
+import UserAvatar from './UserAvatar';
 
 const MyNavbar = () => {
     const { user } = useAuthContext();
@@ -79,14 +79,7 @@ const MyNavbar = () => {
                             <NavDropdown
                                 title={
                                     <span className="text-white d-flex align-items-center">
-                                        <div
-                                            className="avatar-circle"
-                                            style={{
-                                                backgroundColor: generateColorFromString(user.username)
-                                            }}
-                                        >
-                                            {user.username[0].toUpperCase()}
-                                        </div>
+                                        <UserAvatar username={user.username} />
                                         Account
                                     </span>
                                 }

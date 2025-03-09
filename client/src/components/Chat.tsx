@@ -1,9 +1,9 @@
 import { useContext, useEffect, useRef, useState } from 'react';
-import { Button, FormControl, ListGroup } from 'react-bootstrap';
-import { FaArrowLeft } from 'react-icons/fa';
 import { AuthContext } from '../context/authContext';
 import '../css/chat.css';
-import { generateColorFromString } from '../utils/colorUtils';
+import { ChatListView } from './ChatListView';
+import { ChatSearchView } from './ChatSearchView';
+import { ChatMessagesView } from './ChatMessagesView';
 
 interface MessageGroup {
     date: string;
@@ -30,6 +30,7 @@ export const Chat = () => {
         }
     };
 
+    // This effect runs when the chat is open and the user is authenticated to fetch messages periodically
     useEffect(() => {
         let interval: NodeJS.Timeout;
 
@@ -68,6 +69,7 @@ export const Chat = () => {
                                     (message.from === user?.username && message.to === selectedChat) ||
                                     (message.from === selectedChat && message.to === user?.username)
                             );
+                            // This function filters and sets messages for the selected chat
                             setMessages(filteredMessages);
                         }
                     })
@@ -121,6 +123,7 @@ export const Chat = () => {
         }
     };
 
+    // This toggles the chat window view on or off
     const toggleChatWindow = () => {
         setIsOpen(!isOpen);
         setView('chats');
@@ -147,6 +150,7 @@ export const Chat = () => {
         setMessages(filteredMessages);
     };
 
+    // This sends a new message to the server and updates the local messages
     const sendMessage = (message: string) => {
         if (!user?.username || !selectedChat || !message.trim()) return;
 
@@ -209,148 +213,52 @@ export const Chat = () => {
                     <div className="chat-header">
                         {view === 'chats' && (
                             <>
-                                <FormControl
-                                    type="text"
-                                    placeholder="Search users..."
-                                    value={searchTerm}
-                                    onChange={handleSearchChange}
-                                    onFocus={() => setView('search')}
-                                    style={{ marginBottom: '10px' }}
+                                <ChatSearchView
+                                    searchTerm={searchTerm}
+                                    searchResults={searchResults}
+                                    onSearchChange={handleSearchChange}
+                                    onUserClick={handleUserClick}
+                                    onBlur={() => {
+                                        setTimeout(() => {
+                                            if (!searchTerm) setView('chats');
+                                        }, 200);
+                                    }}
                                 />
-                                <div className="active-chats-container">
-                                    <h5 className="active-chats-title">Active Chats</h5>
-                                    <ListGroup>
-                                        {activeChats.map((chatId, index) => (
-                                            <ListGroup.Item
-                                                key={index}
-                                                action
-                                                onClick={() => handleChatClick(chatId)}
-                                                className="chat-list-item"
-                                            >
-                                                <div
-                                                    className="chat-avatar"
-                                                    style={{ backgroundColor: generateColorFromString(chatId) }}
-                                                >
-                                                    {chatId.charAt(0).toUpperCase()}
-                                                </div>
-                                                <div className="chat-info">
-                                                    <div className="chat-username">{chatId}</div>
-                                                    <div className="chat-preview">
-                                                        {allMessages
-                                                            .filter(msg =>
-                                                                (msg.from === chatId && msg.to === user?.username) ||
-                                                                (msg.to === chatId && msg.from === user?.username)
-                                                            )
-                                                            .slice(-1)[0]?.text || 'No messages yet'}
-                                                    </div>
-                                                </div>
-                                            </ListGroup.Item>
-                                        ))}
-                                    </ListGroup>
-                                </div>
+                                <ChatListView
+                                    activeChats={activeChats}
+                                    allMessages={allMessages}
+                                    currentUser={user?.username}
+                                    onChatClick={handleChatClick}
+                                />
                             </>
                         )}
 
                         {view === 'search' && (
-                            <>
-                                <FormControl
-                                    type="text"
-                                    placeholder="Search users..."
-                                    value={searchTerm}
-                                    onChange={handleSearchChange}
-                                    onBlur={() => {
-                                        setTimeout(() => {
-                                            if (searchTerm.length === 0) {
-                                                setView('chats');
-                                            }
-                                        }, 200);
-                                    }}
-                                    style={{ marginBottom: '10px' }}
-                                />
-                                <ListGroup>
-                                    {searchResults.map((username, index) => (
-                                        <ListGroup.Item
-                                            key={index}
-                                            action
-                                            onClick={() => handleUserClick(username)}
-                                            className="chat-list-item"
-                                        >
-                                            <div
-                                                className="chat-avatar"
-                                                style={{ backgroundColor: generateColorFromString(username) }}
-                                            >
-                                                {username.charAt(0).toUpperCase()}
-                                            </div>
-                                            <div className="chat-info">
-                                                <div className="chat-username">{username}</div>
-                                            </div>
-                                        </ListGroup.Item>
-                                    ))}
-                                </ListGroup>
-                            </>
+                            <ChatSearchView
+                                searchTerm={searchTerm}
+                                searchResults={searchResults}
+                                onSearchChange={handleSearchChange}
+                                onUserClick={handleUserClick}
+                                onBlur={() => {
+                                    setTimeout(() => {
+                                        if (!searchTerm) setView('chats');
+                                    }, 200);
+                                }}
+                            />
                         )}
 
                         {view === 'messages' && selectedChat && (
-                            <div className="messages-container">
-                                <div className="messages-header">
-                                    <Button variant="link" onClick={() => setView('chats')} className="back-button">
-                                        <FaArrowLeft />
-                                    </Button>
-                                    <div className="selected-user-info">
-                                        <div
-                                            className="chat-avatar"
-                                            style={{ backgroundColor: generateColorFromString(selectedChat) }}
-                                        >
-                                            {selectedChat.charAt(0).toUpperCase()}
-                                        </div>
-                                        <span className="selected-username">{selectedChat}</span>
-                                    </div>
-                                </div>
-
-                                <div className="messages-content">
-                                    <div className="message-list" ref={messageListRef}>
-                                        <ListGroup>
-                                            {groupMessagesByDate(messages).map((group, groupIndex) => (
-                                                <div key={groupIndex}>
-                                                    <div className="date-separator">
-                                                        <span>{group.date}</span>
-                                                    </div>
-                                                    {group.messages.map((message, messageIndex) => (
-                                                        <ListGroup.Item
-                                                            key={messageIndex}
-                                                            className={`message-item ${message.from === user?.username ? 'right' : 'left'}`}
-                                                        >
-                                                            <div className="message-text">{message.text}</div>
-                                                            <div className="message-time">{formatTime(message.datetime)}</div>
-                                                        </ListGroup.Item>
-                                                    ))}
-                                                </div>
-                                            ))}
-                                        </ListGroup>
-                                    </div>
-                                </div>
-
-                                <div className="input-group">
-                                    <FormControl
-                                        type="text"
-                                        placeholder="Type a message..."
-                                        value={messageText}
-                                        onChange={(e) => setMessageText(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' && messageText.trim()) {
-                                                sendMessage(messageText);
-                                            }
-                                        }}
-                                    />
-                                    <Button
-                                        variant="primary"
-                                        onClick={() => sendMessage(messageText)}
-                                        disabled={!messageText.trim()}
-                                    >
-                                        Send
-                                    </Button>
-                                </div>
-                            </div>
+                            <ChatMessagesView
+                                selectedChat={selectedChat}
+                                user={user?.username}
+                                messages={messages}
+                                messageText={messageText}
+                                setMessageText={setMessageText}
+                                sendMessage={sendMessage}
+                                groupMessagesByDate={groupMessagesByDate}
+                                formatTime={formatTime}
+                                onBack={() => setView('chats')}
+                            />
                         )}
                     </div>
                 </div>
