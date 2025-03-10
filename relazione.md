@@ -1,12 +1,14 @@
-# Introduzione
+# Relazione finale
+## Introduzione
 
 Il nostro progetto implementa in tutte le sue componenti le estensioni 18-27 indicate nelle specifiche del progetto Selfie per l'AA 23-24. Unica eccezione è il minihub per le chat che abbiamo implementato seguendo l'estensione 18-33.
 
 ## Membri del gruppo:
 
-Leonardo Po 1069156
-Andrea Fiorellino 1089150
-Luca Silvestri
+| Leonardo Po | Andrea Fiorellino | Luca SIlvestri |
+|--|--|--|
+| 1069156 | 1089150 |  |
+
 
 ## Suddivisione del lavoro
 
@@ -16,12 +18,12 @@ Luca Silvestri
 
 ## Utilizzo di intelligenza artificiale generativa
 
-Tutti i membri del gruppo hanno fatto uso di AI per completazione del codice, in particolare Codeium e Github Copilot.
+Tutti i membri del gruppo hanno fatto uso di AI per completamento del codice, in particolare Codeium e Github Copilot.
 Large Language Models sono stati utilizzati per diversi scopi:
 
 - supporto nel debugging: molto frequentemente gli erorri di tipo restituiti dal compilatore TS sono errori molto lunghi e mal formattati. Si è rivelato utile e produttivo l'uso di LLMs (ChatGPT e Llama-3.3-70b) chiedendo ad essi di formattare il messaggio di errore e di fornire una possibile spiegazione.
 - supporto nel debugging delle note: per testare che la generazione del testo in Markdown funzionasse correttamente, diverse note sono state generate tramite AI per velocizzare il processo di testing
-- generazione di componenti React + Boostrap: questo utilizzo è stato il meno frequente in quanto spesso ha poratto alla generazione di codice errato o comunque inadatto. Per componenti di ridotte dimensioni e caratterizzati da funzionalità semplici è stato utile, ma ha comunque richiesto la modifica del codice generato.
+- generazione di componenti React + Boostrap: questo utilizzo è stato il meno frequente in quanto spesso ha portato alla generazione di codice errato o comunque inadatto. Per componenti di ridotte dimensioni e caratterizzati da funzionalità semplici è stato utile, ma ha comunque richiesto la modifica del codice generato.
 
 ## Tecnologie e librerie/framework principali utilizzati
 
@@ -29,11 +31,9 @@ Large Language Models sono stati utilizzati per diversi scopi:
 - React: abbaimo scelto React per la gestione dell'interfaccia utente. Nonostante all'inizio non sia particolarmente intuitivo, lo abbiamo scelto per l'importante presenza di risorse e documentazioni online. Inoltre ha un vastissimo ecosistema di librerie aggiuntive che hanno facilitato lo sviluppo.
 - Boostrap: abbaimo scelto Bootstrap per la sua facilità nel costruire interfacce utente apprezzabili, funzionali in tempi fortemente ridotti.
 - NodeJs & Express: sono le tecnologie utilizzate per implementare il backend e l'API dell'applicazione. Questa tecnologie sono state scelte in quanto spiegate a lezione e anch'esse caratterizzate da un vastissimo ecosistema di librerie utili.
-- Zod + React Hook Form: queste libreria si sono rivelate per gestire con facilità lo state di form molto complessi (es. il form per la rrule), zod è stata usata per fornire degli schema di validazione dei form, 202 dai quali è stato possibile derivare tipi complessi sfruttando la type inference di TypeScript.
+- Zod + React Hook Form: queste librerie si sono rivelate utili per gestire con facilità lo state di form molto complessi (es. il form per la rrule), zod è stata usata per fornire degli schema di validazione dei form, dai quali è stato possibile derivare tipi complessi sfruttando la type inference di TypeScript.
 - rrule: libreria TS rivelatasi fondamentale per calcolare le regole di ricorrenza e le date di occorrenza di eventi ricorrenti.
 - mongoDB come database
-
-Altri dettagli su altre librerie utilizzate verranno forniti nelle specifiche sezione sottostanti.
 
 ## Strumenti utilizzati
 
@@ -72,7 +72,27 @@ La chat, accessibile tramite un modale posizionato in basso a sinistra nella hom
 
 ## **Calendario**
 
-…
+### **Eventi**
+
+Il calendario consente di aggiungere, modificare, eliminare eventi di cui l'utente è proprietario.
+L'utente può inoltre creare due tipi di eventi speciali:
+
+ - Evento "non disturbare", questo evento comporta il rifiuto automatico di tutte le richieste di partecipazione a eventi/attivitò di gruppo
+ sovrapposti all'evento "non disturbare".
+ - Evento Pomodoro, come da specifiche l'utente può definire un evento che include una sessione di studio Pomodoro
+
+Gli eventi posso essere ricorrenti, il form per la recurrency rule consente vari pattern di ripetizione dell'evento.
+L'utente può sceglire luogo e timezone per l'evento. In caso di timezone diversa da quella in cui l'utente è situato, vengono visualizzati entrambi gli orari.
+
+Per consentire un inserimento velocizzato degli eventi, è possibile scegliere l'intervallo di tempo trascinando il cursore dall'inizio alla fine dell'intervallo,
+al rilascio viene automaticamente aperto il modale di input con le date già compilate nel form.
+
+### **Attività**
+
+Le attività hanno modalità di input simile a quella degli eventi.
+Come da specifiche, se non completate si trascinano al giorno successivo. Dopo il trasferimento nei giorni successivi, se l'utente
+ha definito un pattern di notifiche per l'attività, questo pattern verrà ripetuto dopo ogni spostamento dell'attività.
+
 
 ### **Inviti a Eventi e Attività**
 
@@ -86,15 +106,26 @@ Per prevenire abusi, se un malintenzionato entra in possesso del link:
 Il sistema tiene traccia della consegna dell’invito e dell’esito della risposta.
 
 ### **Import / Export di Eventi**
+L'import di file .ics è stato realizzato con la libreria node-ical.
+L'export del calendario con file .ics è stato possibile grazie alla libreria ical-generator.
 
-…
+Per l'utente selfie è possibile importare/esportare anche attività. Infatti ical-generator consente di definire delle proprietà custom dei file .ics
+che ci hanno permesso di rendere importabili anche le attività oltre agli eventi.
 
 ## Note
+La pagina delle note consente la visualizzazione delle note con preview in MD, queste possono essere filtrate attraverso un apposito form per:
+ - tag
+ - visibilità: pubbliche, di gruppo, private
+ - data: comprese in un specifico intervallo di tempo
 
-…
+Inoltre è possibile riordinarle per lunghezza, ordine alfabetico e data di creazione.
 
-## Pomodoro
+Per facilitare l'editing, il form delle note è provvisto di una barra che consente di usare shortcut per:
+ - creazione degli header
+ - creazione di tabelle
+ - inserimento di link
+ - inserimento di immagini
+ - testo in corsivo e in grassetto
+ - creazione di liste non ordinatE
 
-## About Us
-
-La pagina *AboutUs* spiega la storia e le funzionalità dell’app *Selfie*, presentando i principali strumenti come calendario, note, chat e pomodoro timer. Illustra le tecnologie usate, fornisce una sezione con i creatori, i loro contatti e il link al repository GitHub.
+##  Pomodoro
