@@ -104,10 +104,7 @@ export const ActivityForm = ({ setShow, activity }: { setShow: Dispatch<SetState
                 },
                 body: JSON.stringify(newActivity)
             });
-            console.log(res);
             const data: Activity = await res.json();
-            //SISTEMA TIMEZONE QUI
-            console.log(data);
             data.date = new Date(data.date);
             if (res.ok) {
                 dispatch({ type: activity?._id ? 'EDIT_ACTIVITY' : 'CREATE_ACTIVITY', payload: data });

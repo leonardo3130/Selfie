@@ -17,7 +17,7 @@ export const AttendeesForm = ({ register, errors, setValue, watch }: AttendeesFo
     const inputText = Array.isArray(inputField) && inputField ? inputField.join(',') : "";
 
     const getSuggestions = async (substring: string) => {
-        if (substring.length < 2) return;
+        if (substring.length < 2) setSuggestions([]);
         try {
             const res = await fetch('/api/users/search', {
                 method: "POST",

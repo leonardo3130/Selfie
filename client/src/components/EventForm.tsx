@@ -233,7 +233,6 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
         }
     };
 
-    console.log(errors)
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>

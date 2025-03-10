@@ -248,6 +248,7 @@ const notificationsSchema = z
             return true;
         },
         {
+            path: [],
             message:
                 "You cannot set notifications with an advance higher than 5 days",
         },
@@ -314,7 +315,10 @@ const notificationsSchema = z
             return true;
         },
         {
-            message: "You cannot set notifications after start of the event/activity.",
+            path: [
+            ],
+            message:
+                "You cannot set notifications after start of the event/activity.",
         },
     );
 
