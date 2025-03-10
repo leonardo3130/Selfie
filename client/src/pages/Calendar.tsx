@@ -206,8 +206,6 @@ const CustomCalendar = () => {
         setShowDND(true);
     };
 
-    console.log(isCalendarView);
-
     return (
         isLoadingA || isLoadingE ? <h2>Loading...</h2> :
             errorA || errorE ? <h2>{errorA || ""} + {"\n"} + {errorE || ""}</h2> : (
