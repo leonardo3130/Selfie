@@ -17,11 +17,11 @@ import { startDaemon } from "./workers/notificationDaemon.js";
 import { activityRoutes } from "./routes/activity.js";
 import { emailRoutes } from "./routes/email.js";
 import { eventRoutes } from "./routes/event.js";
+import { invitationRoutes } from "./routes/invitation.js";
 import { messageRoutes } from "./routes/message.js";
 import { notesRoutes } from "./routes/note.js";
 import { timeMachineRoutes } from "./routes/timeMachine.js";
 import { userRoutes } from "./routes/user.js";
-import { invitationRoutes } from "./routes/invitation.js";
 
 const app = express();
 
@@ -32,6 +32,9 @@ const __dirname = dirname(__filename);
 //path relativo a dist
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
+//static files for frontend
+const appPath = path.join(__dirname, "../..", "client", "dist");
+
 //configurazione webpush
 webpush.setVapidDetails(
     "mailto:leonardo.po@studio.unibo.it",
@@ -39,6 +42,7 @@ webpush.setVapidDetails(
     process.env.VAPID_PRIVATE_KEY as string,
 );
 
+app.use(express.static(appPath));
 // Middleware per il parsing del corpo della richiesta in JSON
 app.use(cors(corsOptions)); // Permetti CORS solo per determinate origini
 app.use(express.json());
@@ -63,6 +67,11 @@ app.use("/api/activities", activityRoutes);
 app.use("/api/timeMachine", timeMachineRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/invitations", invitationRoutes);
+
+// Serve static files
+app.get("*", (req: Request, res: Response) => {
+    res.sendFile(path.join(appPath, "index.html"));
+});
 
 // Connessione al database
 const PORT = Number(process.env.PORT as unknown) || 4000;
