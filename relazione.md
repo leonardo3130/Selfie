@@ -6,7 +6,7 @@ Il nostro progetto implementa in tutte le sue componenti le estensioni 18-27 ind
 
 Leonardo Po 1069156
 Andrea Fiorellino 1089150
-Luca Silvestri
+Luca Silvestri 1080369
 
 ## Suddivisione del lavoro
 
