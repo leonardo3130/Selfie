@@ -32,7 +32,7 @@ const Login = () => {
 
         try {
             await login(email, password);
-            if (!error)
+            if (error?.length === 0)
                 navigate(from, { replace: true });
         } catch (err) {
             console.error('Error during login:', err);
@@ -46,7 +46,7 @@ const Login = () => {
                     <img src={logo} alt="Selfie" />
                 </div>
                 <div className="auth-right">
-                    <h1 className="auth-title">Welocme back</h1>
+                    <h1 className="auth-title">Welcome back</h1>
                     <p className="auth-subtitle">Log into your Seflie account</p>
 
                     <Form className="auth-form" onSubmit={handleSubmit}>

@@ -20,6 +20,7 @@ const MyNotification = () => {
     };
 
     async function subscribeUserToPush(registration: any) {
+        console.log(import.meta.env.VITE_VAPID_PUBLIC_KEY);
         try {
             const applicationServerKey = urlB64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY as string);
             const subscription = await registration.pushManager.subscribe({
@@ -61,27 +62,6 @@ const MyNotification = () => {
                     }
                 }
             }
-            else if (user && user.flags.notifica_desktop && Notification.permission === 'granted') {
-                check();
-                let reg = await navigator.serviceWorker.getRegistration()
-                if (!reg)
-                    reg = await navigator.serviceWorker.register("/sw.js");
-                let subscription = await reg.pushManager.getSubscription();
-                if (!subscription)
-                    subscription = await subscribeUserToPush(reg);
-                if (subscription) {
-                    await fetch('/api/users/subscribe', {
-                        body: JSON.stringify({ subscription }),
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            credentials: "include",
-                        }
-                    })
-                }
-            }
-
-            check();
         }
         enablePushNotifications();
     }, []);

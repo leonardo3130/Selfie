@@ -39,7 +39,7 @@ const Signup = () => {
                             <div className="col-md-6">
                                 <Form.Control
                                     type="text"
-                                    placeholder="Nome"
+                                    placeholder="Name"
                                     value={firstName}
                                     onChange={(e) => setFirstName(e.target.value)}
                                 />
@@ -47,7 +47,7 @@ const Signup = () => {
                             <div className="col-md-6">
                                 <Form.Control
                                     type="text"
-                                    placeholder="Cognome"
+                                    placeholder="Surname"
                                     value={lastName}
                                     onChange={(e) => setLastName(e.target.value)}
                                 />
@@ -86,7 +86,7 @@ const Signup = () => {
 
                         <Form.Control
                             type="password"
-                            placeholder="Conferma Password"
+                            placeholder="Confirm Password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                         />
