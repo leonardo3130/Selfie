@@ -147,7 +147,6 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
 
 
     const onSubmit = async (data: EventFormData) => {
-        console.log(data);
         if (data.isPomodoro) {
             const duration: number = (data.pomodoroSetting.studioTime + data.pomodoroSetting.riposoTime) * 60 * 1000 * data.pomodoroSetting.nCicli;
             data.endDate = DateTime.fromJSDate(data.date).plus(duration).toJSDate();
@@ -163,6 +162,13 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
             frequency: data.notifications?.frequency,
             text: data.notifications?.text,
             before: (data.notifications?.notifica_desktop || data.notifications?.notifica_email) ? true : undefined
+        }
+
+        if (data.isDoNotDisturb) {
+            data.attendees = [];
+            data.notifications = undefined;
+            data.url = undefined;
+            data.location = undefined;
         }
 
         let rrule = undefined;

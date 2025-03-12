@@ -33,7 +33,6 @@ export const useEvents = (
                         el.endDate = new Date(el.endDate as Date);
                     });
                     dispatch({ type: "SET_EVENTS", payload: result });
-                    console.log(result);
                 }
             } catch (err: any) {
                 if (!isCancelled) {

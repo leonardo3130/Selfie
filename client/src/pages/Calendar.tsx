@@ -200,7 +200,6 @@ const CustomCalendar = () => {
     };
 
     const handleSelectSlot = (slotInfo: any) => {
-        console.log(slotInfo);
         setSlotStart(slotInfo.start);
         setSlotEnd(slotInfo.end);
         setShowDND(true);

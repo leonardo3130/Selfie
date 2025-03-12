@@ -25,9 +25,10 @@ const getUserFromToken = async (token: string) => {
             process.env.SECRET as string,
         ) as jwt.JwtPayload;
 
-        const user : IUser = await
-            UserModel.findOne({ _id }).select("_id email nome cognome username data_nascita flags pushSubscriptions dateOffset");
-        
+        const user: IUser = await UserModel.findOne({ _id }).select(
+            "_id email nome cognome username data_nascita flags pushSubscriptions dateOffset",
+        );
+
         return user;
     } catch (error) {
         return null;
@@ -69,33 +70,31 @@ export const loginUser = async (req: Request, res: Response) => {
 
 export const refreshUser = async (req: Request, res: Response) => {
     const token: string = req.cookies.token;
-    
+
     if (!token) {
-        return 
+        return;
     }
-    
+
     const user = await getUserFromToken(token);
     if (!user) {
-        return res.status(404).json({ 
+        return res.status(404).json({
             isAuthenticated: false,
-            message: "User not found" 
+            message: "User not found",
         });
     }
-    res
-        .status(200)
-        .json({
-            _id: user._id,
-            email: user.email,
-            token,
-            isAuthenticated: true,
-            nome: user.nome,
-            cognome: user.cognome,
-            username: user.username,
-            data_nascita: user.data_nascita,
-            flags: user.flags,
-            pushSubscriptions: user.pushSubscriptions,
-            dateOffset: user.dateOffset,
-        });
+    res.status(200).json({
+        _id: user._id,
+        email: user.email,
+        token,
+        isAuthenticated: true,
+        nome: user.nome,
+        cognome: user.cognome,
+        username: user.username,
+        data_nascita: user.data_nascita,
+        flags: user.flags,
+        pushSubscriptions: user.pushSubscriptions,
+        dateOffset: user.dateOffset,
+    });
 };
 
 // signup controller
@@ -176,12 +175,14 @@ export const addSubscription = async (req: Req, res: Response) => {
 
 // funzione che rimuove la subscription per push notifications
 export const removeSubscription = async (req: Req, res: Response) => {
-    const { user: _id, subscription: sub } = req.body;
+    const { user: _id, endpoint } = req.body;
     const user = await UserModel.findOne({ _id });
     if (!user) {
         return res.status(404).json({ message: "User not found" });
     }
-    user.pushSubscriptions = user.pushSubscriptions.filter((s) => s !== sub);
+    user.pushSubscriptions = user.pushSubscriptions.filter(
+        (s) => s.endpoint !== endpoint,
+    );
     await user.save();
     res.status(200).json({ message: "Subscription removed successfully" });
 };
@@ -236,12 +237,12 @@ export const updateUser = async (req: Request, res: Response) => {
         if (nome) user.nome = nome;
         if (cognome) user.cognome = cognome;
         if (data_nascita) user.data_nascita = new Date(data_nascita);
-        
+
         // Aggiorna i flags se forniti
         if (flags) {
-            user.set('flags', {
+            user.set("flags", {
                 notifica_email: flags.notifica_email ?? user.flags.notifica_email,
-                notifica_desktop: flags.notifica_desktop ?? user.flags.notifica_desktop
+                notifica_desktop: flags.notifica_desktop ?? user.flags.notifica_desktop,
             });
         }
 
@@ -254,12 +255,12 @@ export const updateUser = async (req: Request, res: Response) => {
             data_nascita: user.data_nascita,
             flags: user.flags,
             email: user.email,
-            username: user.username
+            username: user.username,
         });
     } catch (error: any) {
-        console.error('Error during update:', error);
-        res.status(400).json({ 
-            message: error.message || "Error during update." 
+        console.error("Error during update:", error);
+        res.status(400).json({
+            message: error.message || "Error during update.",
         });
     }
 };

@@ -51,7 +51,7 @@ const MyNotification = () => {
                 if (permission === 'granted') {
                     const subscription = await subscribeUserToPush(reg);
                     if (subscription) {
-                        const res = await fetch('/api/users/subscribe', {
+                        await fetch('/api/users/subscribe', {
                             body: JSON.stringify({ subscription }),
                             method: 'POST',
                             headers: {
@@ -59,7 +59,6 @@ const MyNotification = () => {
                                 credentials: "include",
                             }
                         })
-                        console.log(res);
                     }
                 }
             }

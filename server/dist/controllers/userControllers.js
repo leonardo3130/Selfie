@@ -61,12 +61,10 @@ export const refreshUser = async (req, res) => {
     if (!user) {
         return res.status(404).json({
             isAuthenticated: false,
-            message: "User not found"
+            message: "User not found",
         });
     }
-    res
-        .status(200)
-        .json({
+    res.status(200).json({
         _id: user._id,
         email: user.email,
         token,
@@ -132,12 +130,12 @@ export const addSubscription = async (req, res) => {
 };
 // funzione che rimuove la subscription per push notifications
 export const removeSubscription = async (req, res) => {
-    const { user: _id, subscription: sub } = req.body;
+    const { user: _id, endpoint } = req.body;
     const user = await UserModel.findOne({ _id });
     if (!user) {
         return res.status(404).json({ message: "User not found" });
     }
-    user.pushSubscriptions = user.pushSubscriptions.filter((s) => s !== sub);
+    user.pushSubscriptions = user.pushSubscriptions.filter((s) => s.endpoint !== endpoint);
     await user.save();
     res.status(200).json({ message: "Subscription removed successfully" });
 };
@@ -188,9 +186,9 @@ export const updateUser = async (req, res) => {
             user.data_nascita = new Date(data_nascita);
         // Aggiorna i flags se forniti
         if (flags) {
-            user.set('flags', {
+            user.set("flags", {
                 notifica_email: flags.notifica_email ?? user.flags.notifica_email,
-                notifica_desktop: flags.notifica_desktop ?? user.flags.notifica_desktop
+                notifica_desktop: flags.notifica_desktop ?? user.flags.notifica_desktop,
             });
         }
         await user.save();
@@ -201,13 +199,13 @@ export const updateUser = async (req, res) => {
             data_nascita: user.data_nascita,
             flags: user.flags,
             email: user.email,
-            username: user.username
+            username: user.username,
         });
     }
     catch (error) {
-        console.error('Error during update:', error);
+        console.error("Error during update:", error);
         res.status(400).json({
-            message: error.message || "Error during update."
+            message: error.message || "Error during update.",
         });
     }
 };
