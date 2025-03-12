@@ -179,6 +179,7 @@ export const ActivityForm = ({ setShow, activity }: { setShow: Dispatch<SetState
                     <div className="col-sm-12 col-md-6">
                         <AttendeesForm setValue={setValue} register={register} errors={errors} watch={watch} />
                         <NotificationsForm register={register} errors={errors} watch={watch} setValue={setValue} />
+                        {errors.notifications?.root?.message && <div className="text-danger">{errors.notifications?.root.message}</div>}
                         <button className="btn btn-danger mt-3" type="submit">
                             Submit
                             <i className="ms-2 bi bi-send"></i>
