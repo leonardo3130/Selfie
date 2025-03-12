@@ -8,6 +8,8 @@ Il nostro progetto implementa in tutte le sue componenti le estensioni 18-27 ind
 | Leonardo Po | Andrea Fiorellino | Luca SIlvestri |
 |--|--|--|
 | 1069156 | 1089150 | 1080369 |
+|--|--|--|
+| leonardo.po@studio.unibo.it | andrea.fiorellino@studio.unibo.it | luca.silvestri9@studio.unibo.it |
 
 ## Suddivisione del lavoro
 
@@ -125,7 +127,7 @@ Per facilitare l'editing, il form delle note è provvisto di una barra che conse
  - inserimento di link
  - inserimento di immagini
  - testo in corsivo e in grassetto
- - creazione di liste non ordinatE
+ - creazione di liste non ordinate
 
 ##  **Pomodoro**
 La pomodoro app si sviluppa a partire dal file Pomodoro.tsx nel quale vengono definiti i componenti realtivi ai bottoni

@@ -80,12 +80,14 @@ export const PomodoroPreview = () => {
     }
 
     return (
-        <div className="d-flex flex-column container mt-2 p">
-            {event && <h2>Next Planned Study Session: {event.title}</h2>}
-            {event && dates && <h6><i className="bi bi-clock me-2"></i>{dates.start.toLocaleString()} - {DateTime.fromJSDate(dates.start).plus(event.duration as number).toJSDate().toLocaleString()}</h6>}
-            {event && <PomConfiguration pomodoroSetting={event?.pomodoroSetting} navigateToPomodoro={navigateToPomodoro} />}
-            {loading && <Spinner animation="border" variant="danger" />}
-            {!event && !loading && <h3>No Pomodoro Events Planned</h3>}
+        <div className="d-flex flex-column mt-2 p">
+            <div className="h-100 container d-flex flex-column justify-content-start overflow-y-scroll">
+                {event && <h2>Next Planned Study Session: {event.title}</h2>}
+                {event && dates && <h6><i className="bi bi-clock me-2"></i>{dates.start.toLocaleString()} - {DateTime.fromJSDate(dates.start).plus(event.duration as number).toJSDate().toLocaleString()}</h6>}
+                {event && <PomConfiguration pomodoroSetting={event?.pomodoroSetting} navigateToPomodoro={navigateToPomodoro} />}
+                {loading && <Spinner animation="border" variant="danger" />}
+                {!event && !loading && <h3>No Pomodoro Events Planned</h3>}
+            </div>
         </div>
     );
 };

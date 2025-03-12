@@ -4,6 +4,7 @@ import { useAuthContext } from "./useAuthContext";
 const unsubscribeFromPush = () => {
     navigator.serviceWorker.ready.then(async (registration) => {
         const subscription = await registration.pushManager.getSubscription();
+        await registration.unregister();
         if (subscription) {
             const unsubscribed = await subscription.unsubscribe();
             if (unsubscribed) {

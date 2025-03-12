@@ -32,7 +32,8 @@ const Login = () => {
 
         try {
             await login(email, password);
-            navigate(from, { replace: true });
+            if (!error)
+                navigate(from, { replace: true });
         } catch (err) {
             console.error('Error during login:', err);
         }

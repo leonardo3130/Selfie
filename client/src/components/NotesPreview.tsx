@@ -34,13 +34,15 @@ export const NotesPreview = () => {
     }, []);
 
     return (
-        <div className="d-flex flex-column justify-content-start container pt-2 n">
-            <div className="d-flex justify-content-between align-items-center mb-2">
-                <h2>Your last note</h2>
-                <button className="btn btn-danger" onClick={() => navigate("/notes/")}>Go to Notes<i className="bi bi-box-arrow-up-right ms-2"></i></button>
-            </div>
-            <div className="max-h-100 overflow-y-scroll">
-                {<p dangerouslySetInnerHTML={{ __html: html }}></p>}
+        <div className="d-flex flex-column justify-content-start pt-2 n">
+            <div className="h-100 container d-flex flex-column justify-content-start overflow-y-scroll">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                    <h2>Your last note</h2>
+                    <button className="btn btn-danger" onClick={() => navigate("/notes/")}>Go to Notes<i className="bi bi-box-arrow-up-right ms-2"></i></button>
+                </div>
+                <div className="max-h-100 overflow-y-scroll">
+                    {<p dangerouslySetInnerHTML={{ __html: html }}></p>}
+                </div>
             </div>
         </div>
     );
