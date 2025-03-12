@@ -127,4 +127,36 @@ Per facilitare l'editing, il form delle note è provvisto di una barra che conse
  - testo in corsivo e in grassetto
  - creazione di liste non ordinatE
 
-##  Pomodoro
+##  **Pomodoro**
+La pomodoro app si sviluppa a partire dal file Pomodoro.tsx nel quale vengono definiti i componenti realtivi ai bottoni
+della main page del Pomodoro.
+Il timer è implementato all'interno del componente start e per tenere traccia del corretto scorrimento del
+tempo si è fatto uso del modulo timer di node, in particolare delle funzioni setInterval e setTimerId.
+3 variabili di tipo Time tengono traccia di:
+ - tempi di studio e riposo preimpostati dall'utente
+ - tempo effettivo che sta segnando il timer
+
+Il tipo Time è stato appositamente implementato e contiene 3 variabili di tipo number realtive a secondi, minuti e ore.
+
+Il componenete impostazioni che si trova nel file PomodoroSettings.tsx presenta 3 caselle di input per la selezione di tempo di riposo, tempo di studio e numero di cicli
+desiderati, il bottone per il salvataggio e il bottone per l'annullamento.
+Una impostazione viene passata alla pomodoro app come istanza del tipo PomodoroSetting, il quale racchiude in formato zod i 3
+parametri che l'utente ha selezionato.
+E' inoltre possibile accedere attraverso apposito bottone alla pagina per la generazione automatica di impostazioni, il cui componente
+è implementato nel file PomSuggestion.tsx.
+
+Il componente suggestions è costituito da 2 caselle di input per l'inserimento del tempo a disposizione (minuti e ore) e dalla sezione
+nella quale vengono generate le cards selezionabili con i suggerimenti di studio.
+Attraverso lo hook useEffect i suggerimenti vengono continuamente aggiornati in base al tempo inserito in input.
+Il calcolo dei possibili suggerimenti viene effettuato dalle funzioni generateSettings e generateDivision (file pomUtils.tsx).
+
+La funzione generateSettings calcola con generateDivision le possibli suddivisioni del tempo passato come parametro e restituisce un array di possibili impostazioni di studio con una definita proporzione tra tempo di studio(85%) e tempo di riposo(15%).
+
+GenerateDivision è una funzione ricorsiva che, passato un number, genera un array di suoi divisori possibilmente con resto 0, altrimenti con resto
+molto basso. Il parametro tollerance viene incrementato a ogni chiamata ricorsiva e indica il resto relativo ai divisiori target di quella chiamata. Il
+suo valore massimo (5) è stato scelto per ottenere il giusto trade-off tra quantità di impostazioni possibili proposte all'utente
+e "imprecisione" di queste rispetto al tempo inserito dall'utente, che si discosta dai tempi proposti di al massimo 5 minuti.
+
+L'animazione per il timer del pomodoro è definita nei componenti disappearingCircle e SecondsCircle, implemementati nei rispettivi file.
+Per la rappresentazione grafica dei cerchi entrambi fanno uso del componente predefinto svg al cui interno è inserito un elemento circle.
+La variabile strokeDashoffset determina la porzione di cerchio che viene nascosta in ogni istate di tempo e varia in base al parametro timeLeft passato al componente.
