@@ -9,7 +9,7 @@ const unsubscribeFromPush = () => {
             if (unsubscribed) {
                 console.log('Unsubscribed locally. Removing from server...');
                 await fetch('api/users/unsubscribe', {
-                    method: 'POST',
+                    method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
                     body: JSON.stringify({ endpoint: subscription.endpoint })
