@@ -26,7 +26,7 @@ const Login = () => {
 
         // Validazione base
         if (!email || !password) {
-            alert('Per favore, compila tutti i campi');
+            alert('Please fill in all the fields');
             return;
         }
 
@@ -34,7 +34,7 @@ const Login = () => {
             await login(email, password);
             navigate(from, { replace: true });
         } catch (err) {
-            console.error('Errore durante il login:', err);
+            console.error('Error during login:', err);
         }
     }
 
@@ -45,8 +45,8 @@ const Login = () => {
                     <img src={logo} alt="Selfie" />
                 </div>
                 <div className="auth-right">
-                    <h1 className="auth-title">Bentornato</h1>
-                    <p className="auth-subtitle">Accedi al tuo account Selfie</p>
+                    <h1 className="auth-title">Welocme back</h1>
+                    <p className="auth-subtitle">Log into your Seflie account</p>
 
                     <Form className="auth-form" onSubmit={handleSubmit}>
                         <Form.Group className="mb-3">
@@ -76,14 +76,14 @@ const Login = () => {
                             className="auth-button"
                             onClick={handleSubmit}
                         >
-                            {isLoading ? 'Accesso in corso...' : 'Accedi'}
+                            {isLoading ? 'Logging in...' : 'Log In'}
                         </Button>
 
                         {error && <div className="auth-error">{error}</div>}
 
                         <div className="auth-links">
-                            <span>Non hai un account?</span>
-                            <Link to="/signup">Registrati</Link>
+                            <span>Don't have an account?</span>
+                            <Link to="/signup">Register</Link>
                         </div>
                     </Form>
                 </div>

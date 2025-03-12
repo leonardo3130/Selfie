@@ -1,13 +1,13 @@
-import { useState } from 'react'
-import { useAuthContext } from './useAuthContext'
+import { useState } from 'react';
+import { useAuthContext } from './useAuthContext';
 
 // Definiamo un'interfaccia per il tipo di ritorno
 interface UseLoginReturn {
     login: (email: string, password: string) => Promise<void>;
     isLoading: boolean;
     error: string | null;
-  }
-  
+}
+
 export const useLogin = (): UseLoginReturn => {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -28,7 +28,7 @@ export const useLogin = (): UseLoginReturn => {
 
             if (!response.ok) {
                 setIsLoading(false);
-                setError(json.error || 'Errore durante il login');
+                setError(json.message || 'Error during login');
                 return;
             }
 
@@ -43,6 +43,3 @@ export const useLogin = (): UseLoginReturn => {
     return { login, isLoading, error };
 
 }
-
-
-

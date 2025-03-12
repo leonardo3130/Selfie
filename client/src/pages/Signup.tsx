@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
-import { useSignup } from '../hooks/useSignup';
+import { Button, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import '../css/auth.css';
+import { useSignup } from '../hooks/useSignup';
 
 const Signup = () => {
     const [username, setUsername] = useState<string>('');
@@ -18,7 +18,7 @@ const Signup = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (password !== confirmPassword) {
-            alert("Le password non coincidono");
+            alert("Passwords aren't the same");
             return;
         }
         await signup({ username, email, firstName, lastName, password, birthDate, desktopNotifications: true, browserNotifications: true, emailNotifications: true });
@@ -31,8 +31,8 @@ const Signup = () => {
                     <img src={logo} alt="Selfie" />
                 </div>
                 <div className="auth-right">
-                    <h1 className="auth-title">Crea Account</h1>
-                    <p className="auth-subtitle">Unisciti a Selfie</p>
+                    <h1 className="auth-title">Create an account</h1>
+                    <p className="auth-subtitle">Join Selfie</p>
 
                     <Form className="auth-form" onSubmit={handleSubmit}>
                         <div className="row">
@@ -68,11 +68,14 @@ const Signup = () => {
                             onChange={(e) => setEmail(e.target.value)}
                         />
 
-                        <Form.Control
-                            type="date"
-                            value={birthDate}
-                            onChange={(e) => setBirthDate(e.target.value)}
-                        />
+                        <Form.Group>
+                            <Form.Label>Birth Date</Form.Label>
+                            <Form.Control
+                                type="date"
+                                value={birthDate}
+                                onChange={(e) => setBirthDate(e.target.value)}
+                            />
+                        </Form.Group>
 
                         <Form.Control
                             type="password"
@@ -94,14 +97,14 @@ const Signup = () => {
                             className="auth-button"
                             onClick={handleSubmit}
                         >
-                            Registrati
+                            Register
                         </Button>
 
                         {error && <div className="auth-error">{error}</div>}
 
                         <div className="auth-links">
-                            <span>Hai già un account?</span>
-                            <Link to="/login">Accedi</Link>
+                            <span>Already have an account?</span>
+                            <Link to="/login">Log in</Link>
                         </div>
                     </Form>
                 </div>

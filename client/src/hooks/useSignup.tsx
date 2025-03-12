@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useAuthContext } from './useAuthContext'
+import { useState } from 'react';
+import { useAuthContext } from './useAuthContext';
 
 // Definiamo un'interfaccia per il tipo di ritorno
 interface UseSignupReturn {
@@ -16,9 +16,9 @@ interface UseSignupReturn {
     }) => Promise<void>;
     isLoading: boolean;
     error: string | null;
-  }
-  
-  export const useSignup = (): UseSignupReturn => {
+}
+
+export const useSignup = (): UseSignupReturn => {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { dispatch } = useAuthContext();
@@ -64,20 +64,17 @@ interface UseSignupReturn {
                 setError(errorResponse.message);
                 return;
             }
-    
+
             const json = await response.json();
-    
+
             dispatch({ type: 'LOGIN', payload: json });
             setIsLoading(false);
         } catch (error) {
             setIsLoading(false);
-            setError('Qualcosa è andato storto, riprova più tardi.');
+            setError('Errore di connessione al server');
         }
     }
 
     return { signup, isLoading, error };
 
 }
-
-
-

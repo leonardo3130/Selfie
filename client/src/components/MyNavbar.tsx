@@ -43,7 +43,7 @@ const MyNavbar = () => {
                                 </Nav.Link>
 
                                 <Nav.Link as={Link} to="/calendar" className="text-white d-flex align-items-center">
-                                    <BsCalendar3 className="me-1" /> Calendario
+                                    <BsCalendar3 className="me-1" /> Calendar
                                 </Nav.Link>
 
                                 <Nav.Link as={Link} to="/notes" className="text-white d-flex align-items-center">
