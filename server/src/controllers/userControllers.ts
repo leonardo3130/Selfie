@@ -165,7 +165,10 @@ export const addSubscription = async (req: Req, res: Response) => {
     //notifica di conferma
     webpush.sendNotification(
         sub,
-        JSON.stringify({ message: "Subscription added successfully" }),
+        JSON.stringify({
+            title: "Subscription added",
+            message: "Subscription added successfully",
+        }),
     );
 
     user.pushSubscriptions.push(sub);

@@ -123,7 +123,10 @@ export const addSubscription = async (req, res) => {
         return res.status(404).json({ message: "User not found" });
     }
     //notifica di conferma
-    webpush.sendNotification(sub, JSON.stringify({ message: "Subscription added successfully" }));
+    webpush.sendNotification(sub, JSON.stringify({
+        title: "Subscription added",
+        message: "Subscription added successfully",
+    }));
     user.pushSubscriptions.push(sub);
     await user.save();
     res.status(200).json({ message: "Subscription added successfully" });
