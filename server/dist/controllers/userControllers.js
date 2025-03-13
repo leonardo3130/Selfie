@@ -55,7 +55,10 @@ export const loginUser = async (req, res) => {
 export const refreshUser = async (req, res) => {
     const token = req.cookies.token;
     if (!token) {
-        return;
+        return res.status(401).json({
+            isAuthenticated: false,
+            message: "Invalid token",
+        });
     }
     const user = await getUserFromToken(token);
     if (!user) {

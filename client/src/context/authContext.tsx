@@ -1,4 +1,4 @@
-import { createContext, useReducer, useEffect  } from "react";
+import { createContext, useEffect, useReducer } from "react";
 
 export const AuthContext = createContext<any>(null);
 
@@ -9,7 +9,7 @@ const authReducer = (state: any, action: any) => {
         case "LOGOUT":
             return { user: null };
         case "UPDATE":
-            return { 
+            return {
                 user: {
                     ...state.user,
                     nome: action.payload.nome,
@@ -26,14 +26,14 @@ const authReducer = (state: any, action: any) => {
     }
 };
 
-export const AuthContextProvider = ({ children }: any) => { 
+export const AuthContextProvider = ({ children }: any) => {
     const [state, dispatch] = useReducer(authReducer, {
         user: null
-    }); 
+    });
 
     useEffect(() => {
         const fetchUser = async () => {
-            
+
             const response = await fetch('/api/users/refresh', {
                 method: 'POST',
                 headers: {
@@ -45,17 +45,19 @@ export const AuthContextProvider = ({ children }: any) => {
             if (response.ok) {
                 const user = await response.json();
                 dispatch({ type: 'LOGIN', payload: user });
-            }else{
+            } else {
+                const user = await response.json();
+                console.log(user.message);
                 dispatch({ type: 'LOGOUT' });
             }
-            
+
         };
         fetchUser();
     }, []);
 
     return (
         <AuthContext.Provider value={{ ...state, dispatch }}>
-            { children }
+            {children}
         </AuthContext.Provider>
     );
 };

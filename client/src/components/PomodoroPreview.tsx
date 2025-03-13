@@ -43,11 +43,9 @@ export const PomodoroPreview = () => {
                 })
 
                 setLoading(false);
-                console.log(pomEvent);
                 if (pomEvent.length > 0)
                     setEvent(pomEvent[0]);
-            } else
-                console.log(res);
+            }
             setLoading(false);
         } catch (error: any) {
             setLoading(false);

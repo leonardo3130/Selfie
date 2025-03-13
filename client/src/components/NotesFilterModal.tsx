@@ -72,7 +72,6 @@ export const NotesFilterModal: React.FC<NotesFilterModalProps> = ({ showFilters,
     };
 
     const onSubmit = (data: NoteFilterType) => {
-        console.log(data);
         fetchNotes(data);
         setShowFilters(false);
     };
