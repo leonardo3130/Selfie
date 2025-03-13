@@ -13,13 +13,10 @@ export const EditBar: React.FC<EditBarProps> = ({ textAreaRef }) => {
 
     const boldText = () => {
         const { start, end } = getTextSelection();
-        console.log(start, end);
 
         if (start && end && textAreaRef.current) {
             const initialText = textAreaRef.current.value || "";
-            console.log(initialText);
             const newText = initialText?.substring(0, start) + " **" + initialText?.substring(start, end) + "** " + initialText?.substring(end);
-            console.log(newText);
             textAreaRef.current.value = newText;
         }
     }
@@ -76,11 +73,11 @@ export const EditBar: React.FC<EditBarProps> = ({ textAreaRef }) => {
     }
 
     const headerText = (level: number) => {
-        const { start, end } = getTextSelection();
+        const { start } = getTextSelection();
 
         if (start && textAreaRef.current) {
             const initialText = textAreaRef.current.value || "";
-            const newText = initialText?.substring(0, start) + " " + "#".repeat(level) + " " + initialText?.substring(start, end);
+            const newText = initialText?.substring(0, start) + " " + "#".repeat(level) + " " + initialText?.substring(start);
             textAreaRef.current.value = newText;
         }
     }
