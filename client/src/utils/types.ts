@@ -55,7 +55,7 @@ export const noteFilterSchema = z
     .refine(
         (data) => {
             if (data.start && data.end) {
-                return data.start.getTime() <= data.end.getTime();
+                return data.start.getTime() < data.end.getTime();
             } else if (!data.start && !data.end) {
                 return true;
             } else return false;
@@ -315,8 +315,7 @@ const notificationsSchema = z
             return true;
         },
         {
-            path: [
-            ],
+            path: [],
             message:
                 "You cannot set notifications after start of the event/activity.",
         },

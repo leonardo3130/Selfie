@@ -20,7 +20,7 @@
                 "a a p p p"
                 "a a p p p"
                 "a a p p p";
-    /* grid-gap: 0.7rem; */
+    grid-gap: 0.7rem;
 }
 
 .a, .e, .n, .p {
