@@ -24,8 +24,8 @@
 }
 
 .a, .e, .n, .p {
-    -webkit-box-shadow: 5px 13px 15px 5px #330000;
-    box-shadow: 5px 13px 15px 5px #330000 ;
+    -webkit-box-shadow: 2px 6px 7px 2px #330000;
+    box-shadow: 2px 6px 7px 2px #330000 ;
     border-radius: 0.4rem;
 }
 
@@ -74,7 +74,7 @@
                     "n n"
                     "n n"
                     "p p";
-        height: 100%;
+        min-height: 100%;
         max-height: calc(var(--home-height) * 3);
     }
     .a, .e {
