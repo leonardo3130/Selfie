@@ -74,7 +74,7 @@
                     "n n"
                     "n n"
                     "p p";
-        min-height: 100%;
+        height: 100%;
         max-height: calc(var(--home-height) * 3);
     }
     .a, .e {
