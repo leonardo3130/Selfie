@@ -17,7 +17,6 @@ import { console } from "inspector";
 import { createICalendar, readICalendar } from "../utils/icalendarUtils.js";
 
 const createEvent = async (req: Req, res: Response) => {
-    
     const {
         title,
         description,
@@ -36,16 +35,16 @@ const createEvent = async (req: Req, res: Response) => {
         isDoNotDisturb,
         pomodoroSetting,
     } = req.body;
-    
+
     try {
         const validAttendees = await setEmails(attendees);
 
         const creator: IUser | null = await UserModel.findOne({ _id: userId });
-        
+
         const attArray: IAttendee[] = attendees;
 
         attArray?.forEach((att, index) => {
-            if(att.name == creator?.username){
+            if (att.name == creator?.username) {
                 attArray?.splice(index, 1);
             }
         });
@@ -71,7 +70,6 @@ const createEvent = async (req: Req, res: Response) => {
         console.log("EVENTONE", event);
 
         sendEventInvitationEmail(userId, event, event.attendees || []);
-
 
         res.status(201).json(event);
     } catch (error: any) {
@@ -119,8 +117,6 @@ const getEventById = async (req: Req, res: Response) => {
 };
 
 const getAllEvents = async (req: Req, res: Response) => {
-    
-
     const userId: mongoose.Types.ObjectId = req.body.user;
     const date = req.query.date;
     const onlyRecurring = /^true$/i.test(req.query.onlyRecurring as string);
@@ -326,7 +322,6 @@ const getAllEvents = async (req: Req, res: Response) => {
 };
 
 const deleteEventById = async (req: Req, res: Response) => {
-    
     const eventId = req.params.id;
     const userId: mongoose.Types.ObjectId = req.body.user;
 
@@ -393,11 +388,11 @@ const updateEvent = async (req: Req, res: Response) => {
                     newAttendee.email = attendee.email;
                 }
             }
-            
-            if (isNew && creator?.username!=newAttendee.name) newAttendees.push(newAttendee);
+
+            if (isNew && creator?.username != newAttendee.name)
+                newAttendees.push(newAttendee);
         }
     }
-
 
     try {
         //update event
@@ -407,10 +402,7 @@ const updateEvent = async (req: Req, res: Response) => {
         const newEvent: IEvent | null = await EventModel.findOneAndUpdate(
             {
                 _id: new mongoose.Types.ObjectId(eventId),
-                $or: [
-                    { isPomodoro: true }, 
-                    { isPomodoro: false, _id_user: userId },
-                ],
+                $or: [{ isPomodoro: true }, { isPomodoro: false, _id_user: userId }],
             },
             {
                 ...eventData,
@@ -434,21 +426,21 @@ const exportEvents = async (req: Req, res: Response) => {
     try {
         /* retrieving events and activities */
         const events: IEvent[] = await EventModel.find({ _id_user: userId });
-        if (!events || events.length === 0) {
-            return res.status(404).json({ error: "No events found for this user" });
-        }
+        // if (!events || events.length === 0) {
+        //     return res.status(404).json({ error: "No events found for this user" });
+        // }
 
         const activities: IActivity[] = await ActivityModel.find({
             _id_user: userId,
         });
-        if (!activities || activities.length === 0) {
-            return res
-                .status(404)
-                .json({ error: "No activities found for this user" });
-        }
+        // if (!activities || activities.length === 0) {
+        //     return res
+        //         .status(404)
+        //         .json({ error: "No activities found for this user" });
+        // }
 
         /* ics calendar generation */
-        const icalendarContent = createICalendar(events, activities);
+        const icalendarContent = createICalendar(events || [], activities || []);
 
         /* setting headers to allow file download*/
         res.setHeader("Content-Type", "text/calendar");

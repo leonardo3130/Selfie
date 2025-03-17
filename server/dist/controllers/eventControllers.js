@@ -328,10 +328,7 @@ const updateEvent = async (req, res) => {
         console.log(newValidAttendees);
         const newEvent = await EventModel.findOneAndUpdate({
             _id: new mongoose.Types.ObjectId(eventId),
-            $or: [
-                { isPomodoro: true },
-                { isPomodoro: false, _id_user: userId },
-            ],
+            $or: [{ isPomodoro: true }, { isPomodoro: false, _id_user: userId }],
         }, {
             ...eventData,
         }, { new: true });
@@ -350,19 +347,19 @@ const exportEvents = async (req, res) => {
     try {
         /* retrieving events and activities */
         const events = await EventModel.find({ _id_user: userId });
-        if (!events || events.length === 0) {
-            return res.status(404).json({ error: "No events found for this user" });
-        }
+        // if (!events || events.length === 0) {
+        //     return res.status(404).json({ error: "No events found for this user" });
+        // }
         const activities = await ActivityModel.find({
             _id_user: userId,
         });
-        if (!activities || activities.length === 0) {
-            return res
-                .status(404)
-                .json({ error: "No activities found for this user" });
-        }
+        // if (!activities || activities.length === 0) {
+        //     return res
+        //         .status(404)
+        //         .json({ error: "No activities found for this user" });
+        // }
         /* ics calendar generation */
-        const icalendarContent = createICalendar(events, activities);
+        const icalendarContent = createICalendar(events || [], activities || []);
         /* setting headers to allow file download*/
         res.setHeader("Content-Type", "text/calendar");
         res.setHeader("Content-Disposition", "attachment; filename=calendario.ics");

@@ -5,6 +5,7 @@ import { MDPreview } from "../components/MDPreview";
 import { NoteForm } from "../components/NoteForm";
 import { useNotesContext } from "../hooks/useNotesContext";
 import { Note, NoteFormData, formSchema } from "../utils/types";
+import { useNavigate } from "react-router-dom";
 
 
 export const EditorContextProvider = ({ isEdit, isView, isDuplicate }: { isEdit: boolean, isView: boolean, isDuplicate: boolean }) => {
@@ -18,6 +19,8 @@ export const EditorContextProvider = ({ isEdit, isView, isDuplicate }: { isEdit:
     const { id } = useParams();
     const { notes } = useNotesContext();
 
+    let navigate = useNavigate();
+
     if (isEdit || isView || isDuplicate) {
         const note: Note | undefined = notes.find((note: Note) => note._id === id);
         if (note) {
@@ -28,6 +31,10 @@ export const EditorContextProvider = ({ isEdit, isView, isDuplicate }: { isEdit:
                 allowedUsers: note.allowedUsers || [],
                 tags: note.tags || []
             }
+        }
+        else {
+            navigate('/notes');
+            return null;
         }
     }
 
