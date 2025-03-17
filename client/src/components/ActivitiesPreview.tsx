@@ -81,7 +81,7 @@ export const ActivitiesPreview: React.FC<{ isPreview: boolean }> = ({ isPreview 
             <div className="h-100 container d-flex flex-column justify-content-start overflow-y-scroll">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                     <div className="d-flex justify-content-start align-items-center">
-                        {isPreview ? <h2>Activities of </h2> : <h2>Your Activities</h2>}
+                        {isPreview ? <h3>Activities of </h3> : <h2>Your Activities</h2>}
                         {
                             isPreview && <select className="ms-1 form-select" aria-label="Select week or day" value={window} onChange={(e) => setWindow(parseInt(e.target.value))}>
                                 <option value={0}>Day</option>

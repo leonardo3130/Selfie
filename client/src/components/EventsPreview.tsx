@@ -11,6 +11,7 @@ export const EventsPreview: React.FC = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const navigate = useNavigate();
+    let cards: any[] = [];
 
     const [window, setWindow] = useState<number>(0);
 
@@ -82,6 +83,7 @@ export const EventsPreview: React.FC = () => {
 
     useEffect(() => {
         getEvents();
+        cards = occurrencesToCards();
     }, [offset, window]);
 
 
@@ -91,7 +93,7 @@ export const EventsPreview: React.FC = () => {
             <div className="h-100 container d-flex flex-column justify-content-start">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                     <div className="d-flex justify-content-start align-items-center">
-                        <h2>Events of </h2>
+                        <h3>Events of </h3>
                         {
                             <select className="ms-1 form-select" aria-label="Select week or day" value={window} onChange={(e) => setWindow(parseInt(e.target.value))}>
                                 <option value={0}>Day</option>
@@ -103,7 +105,7 @@ export const EventsPreview: React.FC = () => {
                 </div>
                 <div id="eventsCards">
                     {
-                        events.length > 0 ? occurrencesToCards() : <span>No Events !!</span>
+                        events.length > 0 ? cards : <span>No Events !!</span>
                     }
                     {loading && <Spinner animation="border" variant="danger" />}
                 </div>
