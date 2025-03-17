@@ -1,4 +1,5 @@
 import { Response } from "express";
+import { DateTime } from "luxon";
 import mongoose from "mongoose";
 import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { IAttendee } from "../models/eventModel.js";
@@ -34,6 +35,7 @@ const createActivity = async (req: Req, res: Response) => {
 const getActivities = async (req: Req, res: Response) => {
     const userId: mongoose.Types.ObjectId = req.body.user;
     const date: string | undefined = req.query.date ? req.query.date.toString() : undefined;
+    const week = /^true$/i.test(req.query.week as string);
 
     const user = await UserModel.findOne({ _id: userId }).select("email dateOffset");
     if (!user) {
@@ -61,6 +63,9 @@ const getActivities = async (req: Req, res: Response) => {
                 ],
             });
         } else {
+            let start = week ? DateTime.fromISO(date).startOf("week") : DateTime.fromISO(date).startOf("day");
+            let end = week ? DateTime.fromISO(date).endOf("week") : DateTime.fromISO(date).endOf("day");
+
             activities = await ActivityModel.find({
                 $and: [
                     {
@@ -79,8 +84,8 @@ const getActivities = async (req: Req, res: Response) => {
                     },
                     {
                         date: {
-                            $gte: new Date((new Date(date)).setHours(0, 0, 0, 0)),
-                            $lte: new Date((new Date(date)).setHours(23, 59, 59, 999)),
+                            $gte: start.toJSDate(),
+                            $lte: end.toJSDate()
                         }
                     }
                 ]

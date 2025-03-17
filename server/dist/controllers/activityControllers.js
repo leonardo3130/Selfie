@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import mongoose from "mongoose";
 import { ActivityModel } from "../models/activityModel.js";
 import { UserModel } from "../models/userModel.js";
@@ -27,6 +28,7 @@ const createActivity = async (req, res) => {
 const getActivities = async (req, res) => {
     const userId = req.body.user;
     const date = req.query.date ? req.query.date.toString() : undefined;
+    const week = /^true$/i.test(req.query.week);
     const user = await UserModel.findOne({ _id: userId }).select("email dateOffset");
     if (!user) {
         return res.status(404).json({ error: "User not found" });
@@ -52,6 +54,8 @@ const getActivities = async (req, res) => {
             });
         }
         else {
+            let start = week ? DateTime.fromISO(date).startOf("week") : DateTime.fromISO(date).startOf("day");
+            let end = week ? DateTime.fromISO(date).endOf("week") : DateTime.fromISO(date).endOf("day");
             activities = await ActivityModel.find({
                 $and: [
                     {
@@ -70,8 +74,8 @@ const getActivities = async (req, res) => {
                     },
                     {
                         date: {
-                            $gte: new Date((new Date(date)).setHours(0, 0, 0, 0)),
-                            $lte: new Date((new Date(date)).setHours(23, 59, 59, 999)),
+                            $gte: start.toJSDate(),
+                            $lte: end.toJSDate()
                         }
                     }
                 ]

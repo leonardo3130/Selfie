@@ -1,20 +1,18 @@
 import { Response } from "express";
+import { DateTime } from "luxon";
 import mongoose from "mongoose";
 import pkg from "rrule";
 import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { EventModel, IAttendee, IEvent } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
+import { createICalendar, readICalendar } from "../utils/icalendarUtils.js";
 import {
     sendEventInvitationEmail,
     setEmails,
 } from "../utils/invitationUtils.js";
 import { updatePastPomodoro } from "../utils/pomEventUtils.js";
 import { ImportedCalendar, Req } from "../utils/types.js";
-
 const { RRule } = pkg;
-
-import { console } from "inspector";
-import { createICalendar, readICalendar } from "../utils/icalendarUtils.js";
 
 const createEvent = async (req: Req, res: Response) => {
     const {
@@ -119,6 +117,7 @@ const getEventById = async (req: Req, res: Response) => {
 const getAllEvents = async (req: Req, res: Response) => {
     const userId: mongoose.Types.ObjectId = req.body.user;
     const date = req.query.date;
+    const week = /^true$/i.test(req.query.week as string);
     const onlyRecurring = /^true$/i.test(req.query.onlyRecurring as string);
     const nextPom = /^true$/i.test(req.query.nextPom as string);
 
@@ -137,9 +136,11 @@ const getAllEvents = async (req: Req, res: Response) => {
             if (onlyRecurring) {
                 events = await EventModel.find({
                     isRecurring: onlyRecurring,
+                    isDoNotDisturb: false,
                 });
             } else {
                 events = await EventModel.find({
+                    isDoNotDisturb: false,
                     $or: [
                         { _id_user: userId.toString() },
                         {
@@ -154,7 +155,9 @@ const getAllEvents = async (req: Req, res: Response) => {
                 });
             }
         } else if (nextPom !== true) {
-            //query di eventi in una certa data, NON fa query di eventi ricorrenti
+            let start = week ? DateTime.fromISO(date).startOf("week").toUTC() : DateTime.fromISO(date).startOf("day").toUTC();
+            let end = week ? DateTime.fromISO(date).endOf("week").toUTC() : DateTime.fromISO(date).endOf("week").toUTC();
+
             events = await EventModel.find({
                 $and: [
                     {
@@ -169,6 +172,7 @@ const getAllEvents = async (req: Req, res: Response) => {
                                 },
                             },
                         ],
+                        isDoNotDisturb: false,
                     },
                     {
                         $or: [
@@ -176,17 +180,17 @@ const getAllEvents = async (req: Req, res: Response) => {
                             {
                                 date: {
                                     //ignoro ore, minuti, s e ms delle ore
-                                    $gte: new Date(new Date(date).setHours(0, 0, 0, 0)),
-                                    $lte: new Date(new Date(date).setHours(23, 59, 59, 999)),
+                                    $gte: start.toJSDate(),
+                                    $lte: end.toJSDate(),
                                 },
                             },
                             //eventi in date precedenti la cui durata li fa arrivare fino alla data della query
                             {
                                 date: {
-                                    $lte: new Date(new Date(date).setHours(0, 0, 0, 0)),
+                                    $lte: start.toJSDate(),
                                 },
                                 endDate: {
-                                    $gte: new Date(new Date(date).setHours(0, 0, 0, 0)),
+                                    $gte: start.toJSDate(),
                                 },
                             },
                             {
@@ -201,11 +205,10 @@ const getAllEvents = async (req: Req, res: Response) => {
                 if (e.isRecurring) {
                     const rrule: pkg.RRule = RRule.fromString(e.recurrenceRule);
                     const occurrences: Date[] = rrule.between(
-                        new Date(new Date(date).setHours(0, 0, 0, 0)),
-                        new Date(new Date(date).setHours(23, 59, 59, 999)),
+                        start.toJSDate(),
+                        end.toJSDate(),
                         true,
                     );
-                    console.log(occurrences.length);
                     return occurrences.length > 0;
                 } else return true;
             });
@@ -224,12 +227,13 @@ const getAllEvents = async (req: Req, res: Response) => {
                                 },
                             },
                         ],
+                        isDoNotDisturb: false,
                     },
                     {
                         $or: [
                             {
                                 date: {
-                                    $gte: new Date(new Date(date).setHours(0, 0, 0, 0)),
+                                    $gte: DateTime.fromISO(date).toUTC().toJSDate(),
                                 },
                             },
                             {
@@ -251,7 +255,6 @@ const getAllEvents = async (req: Req, res: Response) => {
                     })
                     : null; // Return null if no non-recurring events exist
 
-            // console.log("NEXT POM", eventWithLowestDate);
 
             let minRDate: Date | undefined = undefined;
             /* next recurring pomodoro event */
@@ -485,4 +488,3 @@ export {
     importEvents,
     updateEvent
 };
-

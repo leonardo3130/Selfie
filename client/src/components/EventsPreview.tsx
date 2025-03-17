@@ -12,12 +12,14 @@ export const EventsPreview: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const navigate = useNavigate();
 
+    const [window, setWindow] = useState<number>(0);
+
     const { offset } = useTimeMachineContext();
     const getEventsOfTheDay = async () => {
         try {
             setLoading(true);
             const date: string = DateTime.now().plus(offset).toISODate();
-            const res = await fetch(`/api/events?date=${date}`, {
+            const res = await fetch(`/api/events?date=${date}&week=${window ? 'true' : 'false'}`, {
                 method: "GET",
                 headers: {
                     'Content-Type': 'application/json',
@@ -51,7 +53,13 @@ export const EventsPreview: React.FC = () => {
             {/* Add your content here if needed */}
             <div className="h-100 container d-flex flex-column justify-content-start">
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h2>Events of the day</h2>
+                    <h2>Events of </h2>
+                    {
+                        <select className="ms-1 form-select" aria-label="Select week or day" value={window} onChange={(e) => setWindow(parseInt(e.target.value))}>
+                            <option value={0}>Day</option>
+                            <option value={1}>Week</option>
+                        </select>
+                    }
                     <button className="btn btn-danger" onClick={() => navigate("/calendar/")}>Go to Calendar<i className="bi bi-box-arrow-up-right ms-2"></i></button>
                 </div>
                 <div id="eventsCards">
