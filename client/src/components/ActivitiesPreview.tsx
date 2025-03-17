@@ -46,7 +46,7 @@ export const ActivitiesPreview: React.FC<{ isPreview: boolean }> = ({ isPreview 
 
     const activitiesToCards = () => {
         if (dayActivities.length === 0 && isPreview) {
-            return <span>No activities today !!</span>
+            return <span>No activities !!</span>
         } else if (isPreview) {
             return dayActivities.map((a: Activity) => (
                 <ActivityCard
@@ -80,13 +80,15 @@ export const ActivitiesPreview: React.FC<{ isPreview: boolean }> = ({ isPreview 
             {/* Add your content here if needed */}
             <div className="h-100 container d-flex flex-column justify-content-start overflow-y-scroll">
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                    {isPreview ? <h2>Activities of </h2> : <h2>Your Activities</h2>}
-                    {
-                        isPreview && <select className="ms-1 form-select" aria-label="Select week or day" value={window} onChange={(e) => setWindow(parseInt(e.target.value))}>
-                            <option value={0}>Day</option>
-                            <option value={1}>Week</option>
-                        </select>
-                    }
+                    <div className="d-flex justify-content-start align-items-center">
+                        {isPreview ? <h2>Activities of </h2> : <h2>Your Activities</h2>}
+                        {
+                            isPreview && <select className="ms-1 form-select" aria-label="Select week or day" value={window} onChange={(e) => setWindow(parseInt(e.target.value))}>
+                                <option value={0}>Day</option>
+                                <option value={1}>Week</option>
+                            </select>
+                        }
+                    </div>
                     {isPreview && <button className="btn btn-danger" onClick={() => navigate("/calendar/")}>Go to Calendar<i className="bi bi-box-arrow-up-right ms-2"></i></button>}
                     {!isPreview && <EventModalForm isActivity={true} />}
                 </div>
