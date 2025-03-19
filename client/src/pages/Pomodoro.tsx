@@ -7,6 +7,7 @@ import SecondsCircle from '../components/secondsCircle';
 import '../css/pomodoro.css';
 import { formatTime, Time, toNum, toTime } from '../utils/pomUtils';
 import { PomodoroSetting } from '../utils/types';
+import logo from '../assets/logo.png';
 
 enum PomNotificationType { START, STUDY, REST, END }
 
@@ -75,7 +76,7 @@ const Pomodoro: React.FC = () => {
                     break;
             }
 
-            new Notification("Selfie Pomodoro", { body: text, icon: "../assets/logo.png" });
+            new Notification("Selfie Pomodoro", { body: text, icon: logo });
         }
     }
 
@@ -97,8 +98,9 @@ const Pomodoro: React.FC = () => {
     }
 
     useEffect(() => {
-        setIsComplete(cicliRimanenti <= 0 ? true : false);
-        if (isComplete) {
+        let complete: boolean = cicliRimanenti <= 0;
+        setIsComplete(complete);
+        if (complete) {
             sendPomNotification(PomNotificationType.END)
             stop();
         }
@@ -129,7 +131,7 @@ const Pomodoro: React.FC = () => {
             else {
                 setDisplayTime(riposoTime);
                 setIsStudying(false);
-                sendPomNotification(PomNotificationType.STUDY);
+                sendPomNotification(PomNotificationType.REST);
             }
         }
     }, [displayTime])
