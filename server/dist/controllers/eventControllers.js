@@ -117,8 +117,12 @@ const getAllEvents = async (req, res) => {
             }
         }
         else if (nextPom !== true) {
-            let start = week ? DateTime.fromISO(date).startOf("week").toUTC() : DateTime.fromISO(date).startOf("day").toUTC();
-            let end = week ? DateTime.fromISO(date).endOf("week").toUTC() : DateTime.fromISO(date).endOf("week").toUTC();
+            let start = week
+                ? DateTime.fromISO(date).startOf("week").toUTC()
+                : DateTime.fromISO(date).startOf("day").toUTC();
+            let end = week
+                ? DateTime.fromISO(date).endOf("week").toUTC()
+                : DateTime.fromISO(date).endOf("day").toUTC();
             events = await EventModel.find({
                 $and: [
                     {
