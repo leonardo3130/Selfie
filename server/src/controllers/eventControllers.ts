@@ -155,8 +155,12 @@ const getAllEvents = async (req: Req, res: Response) => {
                 });
             }
         } else if (nextPom !== true) {
-            let start = week ? DateTime.fromISO(date).startOf("week").toUTC() : DateTime.fromISO(date).startOf("day").toUTC();
-            let end = week ? DateTime.fromISO(date).endOf("week").toUTC() : DateTime.fromISO(date).endOf("week").toUTC();
+            let start = week
+                ? DateTime.fromISO(date).startOf("week").toUTC()
+                : DateTime.fromISO(date).startOf("day").toUTC();
+            let end = week
+                ? DateTime.fromISO(date).endOf("week").toUTC()
+                : DateTime.fromISO(date).endOf("day").toUTC();
 
             events = await EventModel.find({
                 $and: [
@@ -254,7 +258,6 @@ const getAllEvents = async (req: Req, res: Response) => {
                         return current.date < min.date ? current : min;
                     })
                     : null; // Return null if no non-recurring events exist
-
 
             let minRDate: Date | undefined = undefined;
             /* next recurring pomodoro event */
@@ -488,3 +491,4 @@ export {
     importEvents,
     updateEvent
 };
+
