@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useLocation, useNavigate } from 'react-router-dom';
+import logo from '../assets/logo.png';
 import DisappearingCircle from '../components/DisappearingCircle';
 import { PomodoroSettings } from '../components/PomodoroSettings';
 import SecondsCircle from '../components/secondsCircle';
 import '../css/pomodoro.css';
 import { formatTime, Time, toNum, toTime } from '../utils/pomUtils';
 import { PomodoroSetting } from '../utils/types';
-import logo from '../assets/logo.png';
 
 enum PomNotificationType { START, STUDY, REST, END }
 
@@ -117,24 +117,28 @@ const Pomodoro: React.FC = () => {
     };
 
     useEffect(() => {
-        if ((toNum(displayTime) + (displayTime.seconds ? displayTime.seconds : 0)) <= 0) {
-
+        if (toNum(displayTime) <= 0) {
             if (!isStudying) {
-                decrementaCicli();
-                if (eventId) {
-                    updatePomodoroEvent();
+                // controllo per utlimo ciclo
+                if (cicliRimanenti === 1) {
+                    decrementaCicli();
+                    return; // uscita anticipata per evitare inizio di una nuova sessione
+                } else {
+                    decrementaCicli();
+                    if (eventId) {
+                        updatePomodoroEvent();
+                    }
+                    setDisplayTime(studioTime);
+                    setIsStudying(true);
+                    sendPomNotification(PomNotificationType.STUDY);
                 }
-                setDisplayTime(studioTime);
-                setIsStudying(true);
-                sendPomNotification(PomNotificationType.STUDY);
-            }
-            else {
+            } else {
                 setDisplayTime(riposoTime);
                 setIsStudying(false);
                 sendPomNotification(PomNotificationType.REST);
             }
         }
-    }, [displayTime])
+    }, [displayTime]);
 
     const tick = async () => {
         if (secTick == 0) {
@@ -205,7 +209,7 @@ const Pomodoro: React.FC = () => {
         if (!isStudying) {
             decrementaCicli();
         }
-        setIsStudying(!isStudying);
+        setIsStudying(prevIsStudying => !prevIsStudying);
         setDisplayTime(isStudying ? { ...riposoTime } : { ...studioTime });
     };
 
