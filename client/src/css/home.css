@@ -1,5 +1,6 @@
 :root {
     --home-height: 90vh;
+    --activity-height: 85vh;
     --home-width: calc(100% - 2.4rem);
 }
 
@@ -29,9 +30,10 @@
     border-radius: 0.4rem;
 }
 
-.no-shadow {
-    -webkit-box-shadow: none;
+.no-preview {
     box-shadow: none;
+    grid-area: none;
+    min-height: var(--activity-height);
 }
 
 #eventsCards, #activitiesCards {
