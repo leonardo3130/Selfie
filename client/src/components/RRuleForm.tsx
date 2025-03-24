@@ -70,7 +70,7 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({ watch, register, 
         setValue("recurrenceRule.byday", []);
         setValue("recurrenceRule.bymonth", undefined);
         setValue("recurrenceRule.bysetpos", undefined);
-        setValue("recurrenceRule.bymonthday", undefined);
+        setValue("recurrenceRule.bymonthday", []);
     }
 
     return (

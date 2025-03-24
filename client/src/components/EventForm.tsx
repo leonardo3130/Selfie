@@ -152,6 +152,10 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
             data.endDate = DateTime.fromJSDate(data.date).plus(duration).toJSDate();
         }
 
+        if (data.notifications?.frequencyType === "DAILY") {
+            data.notifications.frequency = 1;
+        }
+
         const notifications = {
             notifica_email: data.notifications?.notifica_email,
             notifica_desktop: data.notifications?.notifica_desktop,
