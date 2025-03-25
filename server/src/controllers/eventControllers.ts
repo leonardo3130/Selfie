@@ -65,7 +65,6 @@ const createEvent = async (req: Req, res: Response) => {
             isDoNotDisturb,
             pomodoroSetting,
         });
-        console.log("EVENTONE", event);
 
         sendEventInvitationEmail(userId, event, event.attendees || []);
 
@@ -208,11 +207,14 @@ const getAllEvents = async (req: Req, res: Response) => {
             events = events.filter((e: IEvent) => {
                 if (e.isRecurring) {
                     const rrule: pkg.RRule = RRule.fromString(e.recurrenceRule);
-                    const occurrences: Date[] = rrule.between(
-                        start.toJSDate(),
-                        end.toJSDate(),
-                        true,
-                    );
+                    const occurrences: Date[] = rrule
+                        .between(start.toJSDate(), end.toJSDate(), true)
+                        .map((date: Date) =>
+                            DateTime.fromJSDate(date, { zone: "UTC" })
+                                .setZone(e.timezone, { keepLocalTime: true })
+                                .toUTC()
+                                .toJSDate(),
+                        );
                     return occurrences.length > 0;
                 } else return true;
             });
@@ -260,18 +262,21 @@ const getAllEvents = async (req: Req, res: Response) => {
                     : null; // Return null if no non-recurring events exist
 
             let minRDate: Date | undefined = undefined;
+
             /* next recurring pomodoro event */
             const recurringPomEvents: IEvent[] = events.filter((e: IEvent) => {
                 if (e.isRecurring) {
                     const rrule: pkg.RRule = RRule.fromString(e.recurrenceRule);
-                    const occurrence: Date | null = rrule.after(
+                    let occurrence: Date | null = rrule.after(
                         new Date(new Date(date).setHours(0, 0, 0, 0)),
                     );
+                    occurrence = occurrence ? DateTime.fromJSDate(occurrence, { zone: "UTC" })
+                        .setZone(e.timezone, { keepLocalTime: true })
+                        .toUTC()
+                        .toJSDate() : null;
                     return occurrence !== null;
                 } else return false;
             });
-
-            console.log("REC POMS", recurringPomEvents);
 
             let eventWithLowestDateR: IEvent | undefined = undefined;
             if (recurringPomEvents.length > 0) {
@@ -432,18 +437,10 @@ const exportEvents = async (req: Req, res: Response) => {
     try {
         /* retrieving events and activities */
         const events: IEvent[] = await EventModel.find({ _id_user: userId });
-        // if (!events || events.length === 0) {
-        //     return res.status(404).json({ error: "No events found for this user" });
-        // }
 
         const activities: IActivity[] = await ActivityModel.find({
             _id_user: userId,
         });
-        // if (!activities || activities.length === 0) {
-        //     return res
-        //         .status(404)
-        //         .json({ error: "No activities found for this user" });
-        // }
 
         /* ics calendar generation */
         const icalendarContent = createICalendar(events || [], activities || []);

@@ -190,18 +190,19 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
                 }
             }
 
-            // console.log(data.recurrenceRule);
+            const dtstart: DateTime = DateTime.fromJSDate(data.date).setZone(data.timezone, { keepLocalTime: true });
             rrule = new RRule({
                 freq: frequenciesMap[data.recurrenceRule!.frequency],
                 interval: data.recurrenceRule!.interval || undefined,
-                dtstart: toUTC(data.date, data.timezone),
+                dtstart: new Date(Date.UTC(dtstart.year, dtstart.month - 1, dtstart.day, dtstart.hour, dtstart.minute)),
                 count: data.recurrenceRule!.count,
-                until: data.recurrenceRule!.until ? toUTC(data.recurrenceRule!.until, data.timezone) : undefined,
+                until: data.recurrenceRule!.until ? DateTime.fromJSDate(data.recurrenceRule!.until).setZone(data.timezone, { keepLocalTime: true }).toJSDate() : undefined,
                 byweekday,
                 bymonthday: data.recurrenceRule!.bymonthday,
                 bymonth: data.recurrenceRule!.bymonth,
                 bysetpos: data.recurrenceRule!.bysetpos
             })
+
         }
         const newEvent = {
             title: data.title,

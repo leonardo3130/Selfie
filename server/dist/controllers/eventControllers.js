@@ -37,7 +37,6 @@ const createEvent = async (req, res) => {
             isDoNotDisturb,
             pomodoroSetting,
         });
-        console.log("EVENTONE", event);
         sendEventInvitationEmail(userId, event, event.attendees || []);
         res.status(201).json(event);
     }
@@ -168,7 +167,12 @@ const getAllEvents = async (req, res) => {
             events = events.filter((e) => {
                 if (e.isRecurring) {
                     const rrule = RRule.fromString(e.recurrenceRule);
-                    const occurrences = rrule.between(start.toJSDate(), end.toJSDate(), true);
+                    const occurrences = rrule
+                        .between(start.toJSDate(), end.toJSDate(), true)
+                        .map((date) => DateTime.fromJSDate(date, { zone: "UTC" })
+                        .setZone(e.timezone, { keepLocalTime: true })
+                        .toUTC()
+                        .toJSDate());
                     return occurrences.length > 0;
                 }
                 else
@@ -219,13 +223,16 @@ const getAllEvents = async (req, res) => {
             const recurringPomEvents = events.filter((e) => {
                 if (e.isRecurring) {
                     const rrule = RRule.fromString(e.recurrenceRule);
-                    const occurrence = rrule.after(new Date(new Date(date).setHours(0, 0, 0, 0)));
+                    let occurrence = rrule.after(new Date(new Date(date).setHours(0, 0, 0, 0)));
+                    occurrence = occurrence ? DateTime.fromJSDate(occurrence, { zone: "UTC" })
+                        .setZone(e.timezone, { keepLocalTime: true })
+                        .toUTC()
+                        .toJSDate() : null;
                     return occurrence !== null;
                 }
                 else
                     return false;
             });
-            console.log("REC POMS", recurringPomEvents);
             let eventWithLowestDateR = undefined;
             if (recurringPomEvents.length > 0) {
                 eventWithLowestDateR = recurringPomEvents.reduce((min, current) => {
@@ -355,17 +362,9 @@ const exportEvents = async (req, res) => {
     try {
         /* retrieving events and activities */
         const events = await EventModel.find({ _id_user: userId });
-        // if (!events || events.length === 0) {
-        //     return res.status(404).json({ error: "No events found for this user" });
-        // }
         const activities = await ActivityModel.find({
             _id_user: userId,
         });
-        // if (!activities || activities.length === 0) {
-        //     return res
-        //         .status(404)
-        //         .json({ error: "No activities found for this user" });
-        // }
         /* ics calendar generation */
         const icalendarContent = createICalendar(events || [], activities || []);
         /* setting headers to allow file download*/

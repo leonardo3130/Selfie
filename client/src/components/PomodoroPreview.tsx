@@ -70,9 +70,10 @@ export const PomodoroPreview = () => {
             const occurrence: Date = rrule.after(
                 new Date(new Date(DateTime.now().plus(offset).toMillis()).setHours(0, 0, 0, 0)),
             ) as Date;
+            const start = DateTime.fromJSDate(occurrence, { zone: "UTC" }).setZone(event.timezone, { keepLocalTime: true }).toUTC().toJSDate();
             dates = {
-                start: occurrence,
-                end: DateTime.fromJSDate(occurrence).plus(event.duration as number).toJSDate()
+                start,
+                end: DateTime.fromJSDate(start).plus(event.duration as number).toJSDate()
             }
         }
     }

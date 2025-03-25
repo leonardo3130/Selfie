@@ -27,7 +27,7 @@ function generateRecurringEvents(events: Event[], activities: Activity[]) {
         if (event.isRecurring) {
             //generate recurring events and add them to the array
             const rrule = RRule.fromString(event.recurrenceRule as string);
-            const dates = rrule.all();
+            const dates = rrule.all().map((date: Date) => DateTime.fromJSDate(date, { zone: "UTC" }).setZone(event.timezone, { keepLocalTime: true }).toUTC().toJSDate());
             for (const date of dates) {
                 const calendarEvent = {
                     title: event.title,
