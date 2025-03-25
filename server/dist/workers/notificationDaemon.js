@@ -118,7 +118,7 @@ async function checkAndSendNotifications() {
                 return event.isRecurring;
             })
                 .map((event) => {
-                const occurrences = RRule.fromString(event.recurrenceRule).between(start, end, true);
+                const occurrences = RRule.fromString(event.recurrenceRule).between(start, end, true).map((date) => DateTime.fromJSDate(date, { zone: "UTC" }).setZone(event.timezone, { keepLocalTime: true }).toUTC().toJSDate());
                 return [event, occurrences];
             });
             /*filtering non recurring events*/

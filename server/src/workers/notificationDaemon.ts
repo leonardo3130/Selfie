@@ -141,7 +141,7 @@ async function checkAndSendNotifications() {
                 .map((event: IEvent) => {
                     const occurrences: Date[] = RRule.fromString(
                         event.recurrenceRule,
-                    ).between(start, end, true);
+                    ).between(start, end, true).map((date: Date) => DateTime.fromJSDate(date, { zone: "UTC" }).setZone(event.timezone, { keepLocalTime: true }).toUTC().toJSDate());
                     return [event, occurrences];
                 });
 
