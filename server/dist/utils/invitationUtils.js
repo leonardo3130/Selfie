@@ -23,12 +23,23 @@ async function checkDoNotDisturbEvent(attendee, event) {
     });
     if (event.isRecurring) {
         const rrule = RRule.fromString(event.recurrenceRule);
-        const dates = rrule.all().filter((date) => date > DateTime.now().plus(attendee_id?.dateOffset || 0).toJSDate());
+        const dates = rrule
+            .all()
+            .map((date) => DateTime.fromJSDate(date, { zone: "UTC" })
+            .setZone(event.timezone, { keepLocalTime: true })
+            .toUTC()
+            .toJSDate())
+            .filter((date) => date >
+            DateTime.now()
+                .plus(attendee_id?.dateOffset || 0)
+                .toJSDate());
         for (const eventDate of dates) {
             /*check for recurring event and non-recurring do not disturb intervals*/
             const doNotDisturbNonRec = await EventModel.find({
                 _id_user: attendee_id?._id,
-                date: { $lte: DateTime.fromJSDate(eventDate).plus(event.duration).toJSDate() },
+                date: {
+                    $lte: DateTime.fromJSDate(eventDate).plus(event.duration).toJSDate(),
+                },
                 endDate: { $gt: DateTime.fromJSDate(eventDate).toJSDate() },
                 isRecurring: false,
                 isDoNotDisturb: true,
@@ -39,10 +50,14 @@ async function checkDoNotDisturbEvent(attendee, event) {
             /*check for recurring event and recurring do not disturb intervals*/
             for (const doNotDisturb of doNotDisturbRec) {
                 const rrule = RRule.fromString(doNotDisturb.recurrenceRule);
-                const dates = rrule.all();
+                const dates = rrule
+                    .all()
+                    .map((date) => DateTime.fromJSDate(date, { zone: "UTC" }).setZone(event.timezone, { keepLocalTime: true }).toUTC().toJSDate());
                 for (const doNotDisturbDate of dates) {
-                    if (DateTime.fromJSDate(doNotDisturbDate) <= DateTime.fromJSDate(eventDate).plus(event.duration) &&
-                        DateTime.fromJSDate(doNotDisturbDate).plus(doNotDisturb.duration) >= DateTime.fromJSDate(eventDate)) {
+                    if (DateTime.fromJSDate(doNotDisturbDate) <=
+                        DateTime.fromJSDate(eventDate).plus(event.duration) &&
+                        DateTime.fromJSDate(doNotDisturbDate).plus(doNotDisturb.duration) >=
+                            DateTime.fromJSDate(eventDate)) {
                         return true;
                     }
                 }
@@ -53,7 +68,9 @@ async function checkDoNotDisturbEvent(attendee, event) {
         /*check for non recurring event and non-recurring do not disturb intervals*/
         const doNotDisturbNonRec = await EventModel.find({
             _id_user: attendee_id?._id,
-            date: { $lte: DateTime.fromJSDate(event.date).plus(event.duration).toJSDate() },
+            date: {
+                $lte: DateTime.fromJSDate(event.date).plus(event.duration).toJSDate(),
+            },
             endDate: { $gt: DateTime.fromJSDate(event.date).toJSDate() },
             isRecurring: false,
             isDoNotDisturb: true,
@@ -64,10 +81,12 @@ async function checkDoNotDisturbEvent(attendee, event) {
         /*check for non recurring event and recurring do not disturb intervals*/
         for (const doNotDisturb of doNotDisturbRec) {
             const rrule = RRule.fromString(doNotDisturb.recurrenceRule);
-            const dates = rrule.all();
+            const dates = rrule.all().map((date) => DateTime.fromJSDate(date, { zone: "UTC" }).setZone(doNotDisturb.timezone, { keepLocalTime: true }).toUTC().toJSDate());
             for (const doNotDisturbDate of dates) {
-                if (DateTime.fromJSDate(doNotDisturbDate) <= DateTime.fromJSDate(event.date).plus(event.duration) &&
-                    DateTime.fromJSDate(doNotDisturbDate).plus(doNotDisturb.duration) >= DateTime.fromJSDate(event.date)) {
+                if (DateTime.fromJSDate(doNotDisturbDate) <=
+                    DateTime.fromJSDate(event.date).plus(event.duration) &&
+                    DateTime.fromJSDate(doNotDisturbDate).plus(doNotDisturb.duration) >=
+                        DateTime.fromJSDate(event.date)) {
                     return true;
                 }
             }
@@ -97,10 +116,12 @@ async function checkDoNotDisturbActivity(attendee, activity) {
     /*check for non recurring event and recurring do not disturb intervals*/
     for (const doNotDisturb of doNotDisturbRec) {
         const rrule = RRule.fromString(doNotDisturb.recurrenceRule);
-        const dates = rrule.all();
+        const dates = rrule.all().map((date) => DateTime.fromJSDate(date, { zone: "UTC" }).setZone(doNotDisturb.timezone, { keepLocalTime: true }).toUTC().toJSDate());
         for (const doNotDisturbDate of dates) {
-            if (DateTime.fromJSDate(doNotDisturbDate) <= DateTime.fromJSDate(activity.date) &&
-                DateTime.fromJSDate(doNotDisturbDate).plus(doNotDisturb.duration) >= DateTime.fromJSDate(activity.date)) {
+            if (DateTime.fromJSDate(doNotDisturbDate) <=
+                DateTime.fromJSDate(activity.date) &&
+                DateTime.fromJSDate(doNotDisturbDate).plus(doNotDisturb.duration) >=
+                    DateTime.fromJSDate(activity.date)) {
                 return true;
             }
         }
@@ -126,7 +147,10 @@ export function sendActivityInvitationEmail(sender, activity, attendees) {
         const skip = await checkDoNotDisturbActivity(attendee, activity);
         if (skip) {
             await ActivityModel.findOneAndUpdate({ _id: activity._id, "attendees.name": attendee.name }, {
-                $set: { "attendees.$.accepted": false, "attendees.$.responded": true },
+                $set: {
+                    "attendees.$.accepted": false,
+                    "attendees.$.responded": true,
+                },
             });
             return;
         }
@@ -154,7 +178,10 @@ export function sendEventInvitationEmail(sender, event, attendees) {
         const skip = await checkDoNotDisturbEvent(attendee, event);
         if (skip) {
             await EventModel.findOneAndUpdate({ _id: event._id, "attendees.name": attendee.name }, {
-                $set: { "attendees.$.accepted": false, "attendees.$.responded": true },
+                $set: {
+                    "attendees.$.accepted": false,
+                    "attendees.$.responded": true,
+                },
             });
             return;
         }

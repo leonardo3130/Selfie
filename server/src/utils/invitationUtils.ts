@@ -17,7 +17,7 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 async function checkDoNotDisturbEvent(
     attendee: IAttendee,
-    event: IEvent
+    event: IEvent,
 ): Promise<boolean> {
     const attendee_id = await UserModel.findOne({
         username: attendee.name,
@@ -32,14 +32,29 @@ async function checkDoNotDisturbEvent(
     if (event.isRecurring) {
         const rrule = RRule.fromString(event.recurrenceRule);
 
-
-        const dates: Date[] = rrule.all().filter((date: Date) => date > DateTime.now().plus(attendee_id?.dateOffset || 0).toJSDate());
+        const dates: Date[] = rrule
+            .all()
+            .map((date: Date) =>
+                DateTime.fromJSDate(date, { zone: "UTC" })
+                    .setZone(event.timezone, { keepLocalTime: true })
+                    .toUTC()
+                    .toJSDate(),
+            )
+            .filter(
+                (date: Date) =>
+                    date >
+                    DateTime.now()
+                        .plus(attendee_id?.dateOffset || 0)
+                        .toJSDate(),
+            );
 
         for (const eventDate of dates) {
             /*check for recurring event and non-recurring do not disturb intervals*/
             const doNotDisturbNonRec = await EventModel.find({
                 _id_user: attendee_id?._id,
-                date: { $lte: DateTime.fromJSDate(eventDate).plus(event.duration).toJSDate() },
+                date: {
+                    $lte: DateTime.fromJSDate(eventDate).plus(event.duration).toJSDate(),
+                },
                 endDate: { $gt: DateTime.fromJSDate(eventDate).toJSDate() },
                 isRecurring: false,
                 isDoNotDisturb: true,
@@ -49,15 +64,18 @@ async function checkDoNotDisturbEvent(
                 return true;
             }
 
-
             /*check for recurring event and recurring do not disturb intervals*/
             for (const doNotDisturb of doNotDisturbRec) {
                 const rrule = RRule.fromString(doNotDisturb.recurrenceRule);
-                const dates: Date[] = rrule.all();
+                const dates: Date[] = rrule
+                    .all()
+                    .map((date: Date) => DateTime.fromJSDate(date, { zone: "UTC" }).setZone(event.timezone, { keepLocalTime: true }).toUTC().toJSDate());
                 for (const doNotDisturbDate of dates) {
                     if (
-                        DateTime.fromJSDate(doNotDisturbDate) <= DateTime.fromJSDate(eventDate).plus(event.duration) &&
-                        DateTime.fromJSDate(doNotDisturbDate).plus(doNotDisturb.duration) >= DateTime.fromJSDate(eventDate)
+                        DateTime.fromJSDate(doNotDisturbDate) <=
+                        DateTime.fromJSDate(eventDate).plus(event.duration) &&
+                        DateTime.fromJSDate(doNotDisturbDate).plus(doNotDisturb.duration) >=
+                        DateTime.fromJSDate(eventDate)
                     ) {
                         return true;
                     }
@@ -68,7 +86,9 @@ async function checkDoNotDisturbEvent(
         /*check for non recurring event and non-recurring do not disturb intervals*/
         const doNotDisturbNonRec = await EventModel.find({
             _id_user: attendee_id?._id,
-            date: { $lte: DateTime.fromJSDate(event.date).plus(event.duration).toJSDate() },
+            date: {
+                $lte: DateTime.fromJSDate(event.date).plus(event.duration).toJSDate(),
+            },
             endDate: { $gt: DateTime.fromJSDate(event.date).toJSDate() },
             isRecurring: false,
             isDoNotDisturb: true,
@@ -81,11 +101,13 @@ async function checkDoNotDisturbEvent(
         /*check for non recurring event and recurring do not disturb intervals*/
         for (const doNotDisturb of doNotDisturbRec) {
             const rrule = RRule.fromString(doNotDisturb.recurrenceRule);
-            const dates: Date[] = rrule.all();
+            const dates: Date[] = rrule.all().map((date: Date) => DateTime.fromJSDate(date, { zone: "UTC" }).setZone(doNotDisturb.timezone, { keepLocalTime: true }).toUTC().toJSDate());
             for (const doNotDisturbDate of dates) {
                 if (
-                    DateTime.fromJSDate(doNotDisturbDate) <= DateTime.fromJSDate(event.date).plus(event.duration) &&
-                    DateTime.fromJSDate(doNotDisturbDate).plus(doNotDisturb.duration) >= DateTime.fromJSDate(event.date)
+                    DateTime.fromJSDate(doNotDisturbDate) <=
+                    DateTime.fromJSDate(event.date).plus(event.duration) &&
+                    DateTime.fromJSDate(doNotDisturbDate).plus(doNotDisturb.duration) >=
+                    DateTime.fromJSDate(event.date)
                 ) {
                     return true;
                 }
@@ -97,7 +119,7 @@ async function checkDoNotDisturbEvent(
 
 async function checkDoNotDisturbActivity(
     attendee: IAttendee,
-    activity: IActivity
+    activity: IActivity,
 ): Promise<boolean> {
     const attendee_id = await UserModel.findOne({
         username: attendee.name,
@@ -124,20 +146,21 @@ async function checkDoNotDisturbActivity(
     /*check for non recurring event and recurring do not disturb intervals*/
     for (const doNotDisturb of doNotDisturbRec) {
         const rrule = RRule.fromString(doNotDisturb.recurrenceRule);
-        const dates: Date[] = rrule.all();
+        const dates: Date[] = rrule.all().map((date: Date) => DateTime.fromJSDate(date, { zone: "UTC" }).setZone(doNotDisturb.timezone, { keepLocalTime: true }).toUTC().toJSDate());
         for (const doNotDisturbDate of dates) {
             if (
-                DateTime.fromJSDate(doNotDisturbDate) <= DateTime.fromJSDate(activity.date) &&
-                DateTime.fromJSDate(doNotDisturbDate).plus(doNotDisturb.duration) >= DateTime.fromJSDate(activity.date)
+                DateTime.fromJSDate(doNotDisturbDate) <=
+                DateTime.fromJSDate(activity.date) &&
+                DateTime.fromJSDate(doNotDisturbDate).plus(doNotDisturb.duration) >=
+                DateTime.fromJSDate(activity.date)
             ) {
                 return true;
             }
         }
     }
 
-    return false
+    return false;
 }
-
 
 /* function to set attendees' email (from input form we only get usernames) */
 export async function setEmails(attendees: IAttendee[]): Promise<IAttendee[]> {
@@ -171,8 +194,11 @@ export function sendActivityInvitationEmail(
             await ActivityModel.findOneAndUpdate(
                 { _id: activity._id, "attendees.name": attendee.name },
                 {
-                    $set: { "attendees.$.accepted": false, "attendees.$.responded": true },
-                }
+                    $set: {
+                        "attendees.$.accepted": false,
+                        "attendees.$.responded": true,
+                    },
+                },
             );
             return;
         }
@@ -209,8 +235,11 @@ export function sendEventInvitationEmail(
             await EventModel.findOneAndUpdate(
                 { _id: event._id, "attendees.name": attendee.name },
                 {
-                    $set: { "attendees.$.accepted": false, "attendees.$.responded": true },
-                }
+                    $set: {
+                        "attendees.$.accepted": false,
+                        "attendees.$.responded": true,
+                    },
+                },
             );
             return;
         }
