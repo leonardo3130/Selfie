@@ -34,9 +34,7 @@ function createICalendar(events, activities) {
                 bySetPos: rrule.options.bysetpos,
             };
         }
-        const start = DateTime.fromJSDate(event.date, {
-            zone: "utc",
-        }).setZone(event.timezone);
+        const start = DateTime.fromJSDate(event.date).setZone("Etc/UTC", { keepLocalTime: true }).setZone(event.timezone);
         const icalEvent = {
             start: start.toJSDate(),
             end: start.plus(event.duration).toJSDate(),
@@ -57,9 +55,7 @@ function createICalendar(events, activities) {
     });
     /*exporting activities as VEVENT with only start date, with a completed custom flag*/
     activities.forEach((activity) => {
-        const start = DateTime.fromJSDate(activity.date, {
-            zone: "utc",
-        }).setZone(activity.timezone);
+        const start = DateTime.fromJSDate(activity.date).setZone("Etc/UTC", { keepLocalTime: true }).setZone(activity.timezone);
         calendar
             .createEvent({
             start: start.toJSDate(),
@@ -121,10 +117,10 @@ async function readICalendar(icalData, userId) {
                     /*DUE is undefined --> event*/
                     const start = DateTime.fromJSDate(event.start, {
                         zone: event.start.tz || "utc",
-                    }).setZone("UTC");
+                    }).setZone("Etc/UTC");
                     const end = DateTime.fromJSDate(event.end, {
                         zone: event.end.tz || "utc",
-                    }).setZone("UTC");
+                    }).setZone("Etc/UTC");
                     const createdEvent = await EventModel.create({
                         title: event.summary || "Event without title",
                         description: event.description || "",
@@ -146,13 +142,16 @@ async function readICalendar(icalData, userId) {
                     createdEvents.push(createdEvent);
                 }
                 else {
+                    const start = DateTime.fromJSDate(event.start, {
+                        zone: event.start.tz || "utc",
+                    }).setZone("Etc/UTC");
                     /*DUE is defined --> activity*/
                     const createdActivity = await ActivityModel.create({
                         title: event.summary || "Activity without title",
                         description: event.description || "  ",
-                        date: event.DUE,
+                        date: start.toJSDate(),
                         timezone: event.start?.tz ||
-                            Intl.DateTimeFormat().resolvedOptions().timeZone,
+                            "Etc/UTC",
                         _id_user: userId,
                         attendees,
                         isCompleted: event.COMPLETED === "TRUE" ? true : false,
