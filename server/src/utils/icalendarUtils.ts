@@ -1,10 +1,15 @@
 import { ICalEventData, default as icalExport } from "ical-generator";
+import { DateTime } from "luxon";
 import mongoose from "mongoose";
 import { Attendee, default as icalImport, VEvent } from "node-ical";
 import pkg from "rrule";
 import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { EventModel, IAttendee, IEvent } from "../models/eventModel.js";
-import { checkUser, sendActivityInvitationEmail, sendEventInvitationEmail } from "./invitationUtils.js";
+import {
+    checkUser,
+    sendActivityInvitationEmail,
+    sendEventInvitationEmail,
+} from "./invitationUtils.js";
 import {
     frequencyToICalEventRepeatingFreq,
     ImportedCalendar,
@@ -42,7 +47,9 @@ function createICalendar(events: IEvent[], activities: IActivity[]): string {
                         : undefined,
                 until: rrule.options.until ? (rrule.options.until as Date) : undefined,
                 byDay: Array.isArray(rrule.options.byweekday)
-                    ? rrule.options.byweekday.map((d: any) => rRuleWeekdayIntToICalWeekday[d])
+                    ? rrule.options.byweekday.map(
+                        (d: any) => rRuleWeekdayIntToICalWeekday[d],
+                    )
                     : rRuleWeekdayIntToICalWeekday[rrule.options.byweekday],
                 byMonth: rrule.options.bymonth,
                 byMonthDay: rrule.options.bymonthday.length
@@ -52,9 +59,12 @@ function createICalendar(events: IEvent[], activities: IActivity[]): string {
             };
         }
 
+        const start: DateTime = DateTime.fromJSDate(event.date, {
+            zone: "utc",
+        }).setZone(event.timezone);
         const icalEvent: ICalEventData = {
-            start: event.date,
-            end: event.endDate,
+            start: start.toJSDate(),
+            end: start.plus(event.duration).toJSDate(),
             summary: event.title,
             description: event.description,
             location: event.location,
@@ -74,9 +84,13 @@ function createICalendar(events: IEvent[], activities: IActivity[]): string {
 
     /*exporting activities as VEVENT with only start date, with a completed custom flag*/
     activities.forEach((activity: IActivity) => {
+        const start: DateTime = DateTime.fromJSDate(activity.date, {
+            zone: "utc",
+        }).setZone(activity.timezone);
+
         calendar
             .createEvent({
-                start: activity.date,
+                start: start.toJSDate(),
                 summary: activity.title,
                 description: activity.description,
                 attendees: activity.attendees?.map((attendee) => ({
@@ -96,7 +110,7 @@ function createICalendar(events: IEvent[], activities: IActivity[]): string {
                     key: "X-DUE",
                     value: activity.date.toISOString(),
                 },
-            ])
+            ]);
     });
 
     /*converting content to string so it can be placed inside the .ics file*/
@@ -136,17 +150,24 @@ async function readICalendar(
                 let attendees: IAttendee[] = [];
                 for (const attendee of validAttendees) {
                     let exist: boolean = await checkUser(attendee.name);
-                    if (exist)
-                        attendees.push(attendee);
+                    if (exist) attendees.push(attendee);
                 }
 
                 if (event.DUE == undefined) {
                     /*DUE is undefined --> event*/
+                    const start: DateTime = DateTime.fromJSDate(event.start, {
+                        zone: event.start.tz || "utc",
+                    }).setZone("UTC");
+
+                    const end: DateTime = DateTime.fromJSDate(event.end, {
+                        zone: event.end.tz || "utc",
+                    }).setZone("UTC");
+
                     const createdEvent: IEvent = await EventModel.create({
                         title: event.summary || "Event without title",
                         description: event.description || "",
-                        date: event.start,
-                        endDate: event.end || new Date(event.start.getTime() + 3600000),
+                        date: start.toJSDate(),
+                        endDate: end.toJSDate(),
                         location: event.location,
                         url: event.url?.val,
                         duration: event.end.getTime() - event.start.getTime(),
@@ -154,7 +175,7 @@ async function readICalendar(
                             event.rrule && event.rrule.toString().length > 0 ? true : false,
                         timezone:
                             event.start.tz ||
-                            Intl.DateTimeFormat().resolvedOptions().timeZone,
+                            "",
                         _id_user: userId,
                         attendees,
                         recurrenceRule: event.rrule?.toString(),
@@ -162,7 +183,11 @@ async function readICalendar(
                         isDoNotDisturb: false,
                     });
 
-                    sendEventInvitationEmail(userId, createdEvent, createdEvent.attendees || []);
+                    sendEventInvitationEmail(
+                        userId,
+                        createdEvent,
+                        createdEvent.attendees || [],
+                    );
 
                     createdEvents.push(createdEvent);
                 } else {
@@ -179,7 +204,11 @@ async function readICalendar(
                         isCompleted: event.COMPLETED === "TRUE" ? true : false,
                     });
 
-                    sendActivityInvitationEmail(userId, createdActivity, createdActivity.attendees || []);
+                    sendActivityInvitationEmail(
+                        userId,
+                        createdActivity,
+                        createdActivity.attendees || [],
+                    );
 
                     createdActivities.push(createdActivity);
                 }

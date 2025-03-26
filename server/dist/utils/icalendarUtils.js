@@ -1,9 +1,10 @@
 import { default as icalExport } from "ical-generator";
+import { DateTime } from "luxon";
 import { default as icalImport } from "node-ical";
 import pkg from "rrule";
 import { ActivityModel } from "../models/activityModel.js";
 import { EventModel } from "../models/eventModel.js";
-import { checkUser, sendActivityInvitationEmail, sendEventInvitationEmail } from "./invitationUtils.js";
+import { checkUser, sendActivityInvitationEmail, sendEventInvitationEmail, } from "./invitationUtils.js";
 import { frequencyToICalEventRepeatingFreq, rRuleWeekdayIntToICalWeekday, } from "./types.js";
 const { RRule } = pkg;
 /* creation of ics file content, exporting activities and events in Selfie calendar */
@@ -33,9 +34,12 @@ function createICalendar(events, activities) {
                 bySetPos: rrule.options.bysetpos,
             };
         }
+        const start = DateTime.fromJSDate(event.date, {
+            zone: "utc",
+        }).setZone(event.timezone);
         const icalEvent = {
-            start: event.date,
-            end: event.endDate,
+            start: start.toJSDate(),
+            end: start.plus(event.duration).toJSDate(),
             summary: event.title,
             description: event.description,
             location: event.location,
@@ -53,9 +57,12 @@ function createICalendar(events, activities) {
     });
     /*exporting activities as VEVENT with only start date, with a completed custom flag*/
     activities.forEach((activity) => {
+        const start = DateTime.fromJSDate(activity.date, {
+            zone: "utc",
+        }).setZone(activity.timezone);
         calendar
             .createEvent({
-            start: activity.date,
+            start: start.toJSDate(),
             summary: activity.title,
             description: activity.description,
             attendees: activity.attendees?.map((attendee) => ({
@@ -112,17 +119,23 @@ async function readICalendar(icalData, userId) {
                 }
                 if (event.DUE == undefined) {
                     /*DUE is undefined --> event*/
+                    const start = DateTime.fromJSDate(event.start, {
+                        zone: event.start.tz || "utc",
+                    }).setZone("UTC");
+                    const end = DateTime.fromJSDate(event.end, {
+                        zone: event.end.tz || "utc",
+                    }).setZone("UTC");
                     const createdEvent = await EventModel.create({
                         title: event.summary || "Event without title",
                         description: event.description || "",
-                        date: event.start,
-                        endDate: event.end || new Date(event.start.getTime() + 3600000),
+                        date: start.toJSDate(),
+                        endDate: end.toJSDate(),
                         location: event.location,
                         url: event.url?.val,
                         duration: event.end.getTime() - event.start.getTime(),
                         isRecurring: event.rrule && event.rrule.toString().length > 0 ? true : false,
                         timezone: event.start.tz ||
-                            Intl.DateTimeFormat().resolvedOptions().timeZone,
+                            "",
                         _id_user: userId,
                         attendees,
                         recurrenceRule: event.rrule?.toString(),
