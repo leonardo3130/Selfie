@@ -1,3 +1,4 @@
+import { timeZonesNames } from "@vvo/tzdb";
 import { z } from "zod";
 
 //date-string preprocessing
@@ -336,7 +337,9 @@ export const eventSchema = z.object({
     attendees: z.array(attendeeSchema).optional().nullable(),
     notifications: notificationsSchema.optional().nullable(),
     isRecurring: z.boolean(),
-    timezone: z.string(),
+    timezone: z.string().refine((val) => {
+        timeZonesNames.includes(val);
+    }),
     isPomodoro: z.boolean(),
     isDoNotDisturb: z.boolean(),
     pomodoroSetting: pomodoroSettingSchema,
@@ -457,7 +460,9 @@ export const activitySchema = z.object({
     attendees: z.array(attendeeSchema).optional().nullable(),
     notifications: notificationsSchema.optional().nullable(),
     _id_user: z.string(),
-    timezone: z.string(),
+    timezone: z.string().refine((val) => {
+        timeZonesNames.includes(val);
+    }),
 });
 
 export const activityFormSchema = activitySchema
