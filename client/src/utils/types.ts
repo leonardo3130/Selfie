@@ -337,8 +337,8 @@ export const eventSchema = z.object({
     attendees: z.array(attendeeSchema).optional().nullable(),
     notifications: notificationsSchema.optional().nullable(),
     isRecurring: z.boolean(),
-    timezone: z.string().refine((val) => {
-        timeZonesNames.includes(val);
+    timezone: z.string().refine((val) => timeZonesNames.includes(val), {
+        message: "Invalid timezone. Must be a valid IANA timezone.",
     }),
     isPomodoro: z.boolean(),
     isDoNotDisturb: z.boolean(),
@@ -460,8 +460,8 @@ export const activitySchema = z.object({
     attendees: z.array(attendeeSchema).optional().nullable(),
     notifications: notificationsSchema.optional().nullable(),
     _id_user: z.string(),
-    timezone: z.string().refine((val) => {
-        timeZonesNames.includes(val);
+    timezone: z.string().refine((val) => timeZonesNames.includes(val), {
+        message: "Invalid timezone. Must be a valid IANA timezone.",
     }),
 });
 
