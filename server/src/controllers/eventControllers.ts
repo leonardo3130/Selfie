@@ -139,7 +139,6 @@ const getAllEvents = async (req: Req, res: Response) => {
                 });
             } else {
                 events = await EventModel.find({
-                    isDoNotDisturb: false,
                     $or: [
                         { _id_user: userId.toString() },
                         {
@@ -270,10 +269,12 @@ const getAllEvents = async (req: Req, res: Response) => {
                     let occurrence: Date | null = rrule.after(
                         new Date(new Date(date).setHours(0, 0, 0, 0)),
                     );
-                    occurrence = occurrence ? DateTime.fromJSDate(occurrence, { zone: "UTC" })
-                        .setZone(e.timezone, { keepLocalTime: true })
-                        .toUTC()
-                        .toJSDate() : null;
+                    occurrence = occurrence
+                        ? DateTime.fromJSDate(occurrence, { zone: "UTC" })
+                            .setZone(e.timezone, { keepLocalTime: true })
+                            .toUTC()
+                            .toJSDate()
+                        : null;
                     return occurrence !== null;
                 } else return false;
             });
@@ -424,7 +425,11 @@ const updateEvent = async (req: Req, res: Response) => {
         if (!newEvent) {
             return res.status(404).json({ message: "Event doesn't exist" });
         } else
-            await sendEventInvitationEmail(userId, newEvent as IEvent, newValidAttendees);
+            await sendEventInvitationEmail(
+                userId,
+                newEvent as IEvent,
+                newValidAttendees,
+            );
 
         res.status(200).json(newEvent);
     } catch (error: any) {
