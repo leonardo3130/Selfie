@@ -52,7 +52,11 @@ async function checkDoNotDisturbEvent(attendee, event) {
                 const rrule = RRule.fromString(doNotDisturb.recurrenceRule);
                 const dates = rrule
                     .all()
-                    .map((date) => DateTime.fromJSDate(date, { zone: "UTC" }).setZone(event.timezone, { keepLocalTime: true }).toUTC().toJSDate());
+                    .map((date) => DateTime
+                    .fromJSDate(date, { zone: "UTC" })
+                    .setZone(event.timezone, { keepLocalTime: true })
+                    .toUTC()
+                    .toJSDate());
                 for (const doNotDisturbDate of dates) {
                     if (DateTime.fromJSDate(doNotDisturbDate) <=
                         DateTime.fromJSDate(eventDate).plus(event.duration) &&
@@ -140,9 +144,9 @@ export async function setEmails(attendees) {
     }
     return validAttendees;
 }
-export function sendActivityInvitationEmail(sender, activity, attendees) {
+export async function sendActivityInvitationEmail(sender, activity, attendees) {
     // get user from DB
-    const user_sender = UserModel.findById(sender);
+    const user_sender = await UserModel.findById(sender);
     attendees?.forEach(async (attendee) => {
         const skip = await checkDoNotDisturbActivity(attendee, activity);
         if (skip) {
@@ -157,7 +161,7 @@ export function sendActivityInvitationEmail(sender, activity, attendees) {
         /* code to send email to attendee.email with activity information*/
         const email_text = `Invitation to Activity
 
-        You have been invited to participate in the activity "${activity.title}".
+        You have been invited to participate in the activity "${activity.title}" by ${user_sender?.username}.
         Please check this link in order to accept or decline the invitation: ${process.env.BASE_URL}/activities/${activity._id}/attendees/${attendee.name}
 
         Activity Details:
@@ -170,9 +174,9 @@ export function sendActivityInvitationEmail(sender, activity, attendees) {
         sendEmail(attendee.email, "Invitation to Activity", email_text, []);
     });
 }
-export function sendEventInvitationEmail(sender, event, attendees) {
+export async function sendEventInvitationEmail(sender, event, attendees) {
     // get user from DB
-    const user_sender = UserModel.findById(sender);
+    const user_sender = await UserModel.findById(sender);
     const now = DateTime.now();
     attendees?.forEach(async (attendee) => {
         const skip = await checkDoNotDisturbEvent(attendee, event);
@@ -188,7 +192,7 @@ export function sendEventInvitationEmail(sender, event, attendees) {
         /* code to send email to attendee.email with event information*/
         const email_text = `Invitation to Event
 
-        You have been invited to participate in the event "${event.title}".
+        You have been invited to participate in the event "${event.title}" by ${user_sender?.username}.
         Please check this link in order to accept or decline the invitation: ${process.env.BASE_URL}/events/${event._id}/attendees/${attendee.name}
 
         Event Details:

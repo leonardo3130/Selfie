@@ -66,7 +66,7 @@ const createEvent = async (req: Req, res: Response) => {
             pomodoroSetting,
         });
 
-        sendEventInvitationEmail(userId, event, event.attendees || []);
+        await sendEventInvitationEmail(userId, event, event.attendees || []);
 
         res.status(201).json(event);
     } catch (error: any) {
@@ -421,9 +421,10 @@ const updateEvent = async (req: Req, res: Response) => {
             { new: true },
         );
 
-        if (!newEvent) res.status(404).json({ message: "Event doesn't exist" });
-        else
-            sendEventInvitationEmail(userId, newEvent as IEvent, newValidAttendees);
+        if (!newEvent) {
+            return res.status(404).json({ message: "Event doesn't exist" });
+        } else
+            await sendEventInvitationEmail(userId, newEvent as IEvent, newValidAttendees);
 
         res.status(200).json(newEvent);
     } catch (error: any) {

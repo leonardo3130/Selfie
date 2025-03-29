@@ -3,9 +3,9 @@ import mongoose from "mongoose";
 import { ActivityModel } from "../models/activityModel.js";
 import { UserModel } from "../models/userModel.js";
 import { changeActivitiesDate } from "../utils/activityUtils.js";
-import { sendActivityInvitationEmail, setEmails } from "../utils/invitationUtils.js";
+import { sendActivityInvitationEmail, setEmails, } from "../utils/invitationUtils.js";
 const createActivity = async (req, res) => {
-    const { title, description, date, attendees, notifications, timezone, user: userId } = req.body;
+    const { title, description, date, attendees, notifications, timezone, user: userId, } = req.body;
     try {
         const validAttendees = await setEmails(attendees);
         const activity = await ActivityModel.create({
@@ -16,9 +16,9 @@ const createActivity = async (req, res) => {
             notifications,
             isCompleted: false,
             _id_user: userId,
-            timezone
+            timezone,
         });
-        sendActivityInvitationEmail(userId, activity, activity.attendees || []);
+        await sendActivityInvitationEmail(userId, activity, activity.attendees || []);
         res.status(201).json(activity);
     }
     catch (error) {
@@ -27,7 +27,9 @@ const createActivity = async (req, res) => {
 };
 const getActivities = async (req, res) => {
     const userId = req.body.user;
-    const date = req.query.date ? req.query.date.toString() : undefined;
+    const date = req.query.date
+        ? req.query.date.toString()
+        : undefined;
     const week = /^true$/i.test(req.query.week);
     const user = await UserModel.findOne({ _id: userId }).select("email dateOffset");
     if (!user) {
@@ -54,8 +56,12 @@ const getActivities = async (req, res) => {
             });
         }
         else {
-            let start = week ? DateTime.fromISO(date).startOf("week") : DateTime.fromISO(date).startOf("day");
-            let end = week ? DateTime.fromISO(date).endOf("week") : DateTime.fromISO(date).endOf("day");
+            let start = week
+                ? DateTime.fromISO(date).startOf("week")
+                : DateTime.fromISO(date).startOf("day");
+            let end = week
+                ? DateTime.fromISO(date).endOf("week")
+                : DateTime.fromISO(date).endOf("day");
             activities = await ActivityModel.find({
                 $and: [
                     {
@@ -75,10 +81,10 @@ const getActivities = async (req, res) => {
                     {
                         date: {
                             $gte: start.toJSDate(),
-                            $lte: end.toJSDate()
-                        }
-                    }
-                ]
+                            $lte: end.toJSDate(),
+                        },
+                    },
+                ],
             });
         }
         res.status(200).json(activities);
@@ -162,7 +168,9 @@ const updateActivity = async (req, res) => {
     }
     let newAttendees = [];
     if ("attendees" in activityData) {
-        const activity = await ActivityModel.findOne({ _id: activityId }).select("attendees");
+        const activity = await ActivityModel.findOne({
+            _id: activityId,
+        }).select("attendees");
         if (!activity) {
             return res.status(404).json({ error: "Activity not found" });
         }
@@ -182,11 +190,15 @@ const updateActivity = async (req, res) => {
     }
     try {
         const newValidAttendees = await setEmails(newAttendees);
-        const newActivity = await ActivityModel.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(activityId), _id_user: userId.toString() }, { ...activityData }, { new: true });
-        if (!newActivity)
-            res.status(404).json({ message: "Activity doesn't exist" });
+        const newActivity = await ActivityModel.findOneAndUpdate({
+            _id: new mongoose.Types.ObjectId(activityId),
+            _id_user: userId.toString(),
+        }, { ...activityData }, { new: true });
+        if (!newActivity) {
+            return res.status(404).json({ message: "Activity doesn't exist" });
+        }
         else
-            sendActivityInvitationEmail(userId, newActivity, newValidAttendees);
+            await sendActivityInvitationEmail(userId, newActivity, newValidAttendees);
         res.status(200).json(newActivity);
     }
     catch (error) {

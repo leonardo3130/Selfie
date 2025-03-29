@@ -5,11 +5,22 @@ import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { IAttendee } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
 import { changeActivitiesDate } from "../utils/activityUtils.js";
-import { sendActivityInvitationEmail, setEmails } from "../utils/invitationUtils.js";
+import {
+    sendActivityInvitationEmail,
+    setEmails,
+} from "../utils/invitationUtils.js";
 import { Req } from "../utils/types.js";
 
 const createActivity = async (req: Req, res: Response) => {
-    const { title, description, date, attendees, notifications, timezone, user: userId } = req.body;
+    const {
+        title,
+        description,
+        date,
+        attendees,
+        notifications,
+        timezone,
+        user: userId,
+    } = req.body;
 
     try {
         const validAttendees = await setEmails(attendees);
@@ -21,10 +32,10 @@ const createActivity = async (req: Req, res: Response) => {
             notifications,
             isCompleted: false,
             _id_user: userId,
-            timezone
+            timezone,
         });
 
-        sendActivityInvitationEmail(userId, activity, activity.attendees || []);
+        await sendActivityInvitationEmail(userId, activity, activity.attendees || []);
 
         res.status(201).json(activity);
     } catch (error: any) {
@@ -34,10 +45,14 @@ const createActivity = async (req: Req, res: Response) => {
 
 const getActivities = async (req: Req, res: Response) => {
     const userId: mongoose.Types.ObjectId = req.body.user;
-    const date: string | undefined = req.query.date ? req.query.date.toString() : undefined;
+    const date: string | undefined = req.query.date
+        ? req.query.date.toString()
+        : undefined;
     const week = /^true$/i.test(req.query.week as string);
 
-    const user = await UserModel.findOne({ _id: userId }).select("email dateOffset");
+    const user = await UserModel.findOne({ _id: userId }).select(
+        "email dateOffset",
+    );
     if (!user) {
         return res.status(404).json({ error: "User not found" });
     }
@@ -63,8 +78,12 @@ const getActivities = async (req: Req, res: Response) => {
                 ],
             });
         } else {
-            let start = week ? DateTime.fromISO(date).startOf("week") : DateTime.fromISO(date).startOf("day");
-            let end = week ? DateTime.fromISO(date).endOf("week") : DateTime.fromISO(date).endOf("day");
+            let start = week
+                ? DateTime.fromISO(date).startOf("week")
+                : DateTime.fromISO(date).startOf("day");
+            let end = week
+                ? DateTime.fromISO(date).endOf("week")
+                : DateTime.fromISO(date).endOf("day");
 
             activities = await ActivityModel.find({
                 $and: [
@@ -85,10 +104,10 @@ const getActivities = async (req: Req, res: Response) => {
                     {
                         date: {
                             $gte: start.toJSDate(),
-                            $lte: end.toJSDate()
-                        }
-                    }
-                ]
+                            $lte: end.toJSDate(),
+                        },
+                    },
+                ],
             });
         }
 
@@ -96,13 +115,15 @@ const getActivities = async (req: Req, res: Response) => {
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
-}
+};
 
 const getActivityById = async (req: Req, res: Response) => {
     const activityId = req.params.id;
     const userId: mongoose.Types.ObjectId = req.body.user;
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId }).select("email");
+    const user: IUser | null = await UserModel.findOne({ _id: userId }).select(
+        "email",
+    );
     if (!user) {
         return res.status(404).json({ error: "User not found" });
     }
@@ -183,10 +204,11 @@ const updateActivity = async (req: Req, res: Response) => {
         return res.status(400).json({ error: "Invalid Activity Id" });
     }
 
-
     let newAttendees: IAttendee[] = [];
     if ("attendees" in activityData) {
-        const activity: IActivity | null = await ActivityModel.findOne({ _id: activityId }).select("attendees");
+        const activity: IActivity | null = await ActivityModel.findOne({
+            _id: activityId,
+        }).select("attendees");
 
         if (!activity) {
             return res.status(404).json({ error: "Activity not found" });
@@ -202,8 +224,7 @@ const updateActivity = async (req: Req, res: Response) => {
                     newAttendee.email = attendee.email;
                 }
             }
-            if (isNew)
-                newAttendees.push(newAttendee);
+            if (isNew) newAttendees.push(newAttendee);
         }
     }
 
@@ -211,15 +232,22 @@ const updateActivity = async (req: Req, res: Response) => {
         const newValidAttendees = await setEmails(newAttendees);
 
         const newActivity: IActivity | null = await ActivityModel.findOneAndUpdate(
-            { _id: new mongoose.Types.ObjectId(activityId), _id_user: userId.toString() },
+            {
+                _id: new mongoose.Types.ObjectId(activityId),
+                _id_user: userId.toString(),
+            },
             { ...activityData },
             { new: true },
         );
 
-        if (!newActivity)
-            res.status(404).json({ message: "Activity doesn't exist" })
-        else
-            sendActivityInvitationEmail(userId, newActivity as IActivity, newValidAttendees);
+        if (!newActivity) {
+            return res.status(404).json({ message: "Activity doesn't exist" });
+        } else
+            await sendActivityInvitationEmail(
+                userId,
+                newActivity as IActivity,
+                newValidAttendees,
+            );
 
         res.status(200).json(newActivity);
     } catch (error: any) {
@@ -227,5 +255,12 @@ const updateActivity = async (req: Req, res: Response) => {
     }
 };
 
-export { createActivity, deleteActivities, deleteActivityById, getActivities, getActivityById, updateActivity };
+export {
+    createActivity,
+    deleteActivities,
+    deleteActivityById,
+    getActivities,
+    getActivityById,
+    updateActivity
+};
 

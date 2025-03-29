@@ -69,7 +69,13 @@ async function checkDoNotDisturbEvent(
                 const rrule = RRule.fromString(doNotDisturb.recurrenceRule);
                 const dates: Date[] = rrule
                     .all()
-                    .map((date: Date) => DateTime.fromJSDate(date, { zone: "UTC" }).setZone(event.timezone, { keepLocalTime: true }).toUTC().toJSDate());
+                    .map(
+                        (date: Date) => DateTime
+                            .fromJSDate(date, { zone: "UTC" })
+                            .setZone(event.timezone, { keepLocalTime: true })
+                            .toUTC()
+                            .toJSDate()
+                    );
                 for (const doNotDisturbDate of dates) {
                     if (
                         DateTime.fromJSDate(doNotDisturbDate) <=
@@ -180,13 +186,13 @@ export async function setEmails(attendees: IAttendee[]): Promise<IAttendee[]> {
     return validAttendees;
 }
 
-export function sendActivityInvitationEmail(
+export async function sendActivityInvitationEmail(
     sender: mongoose.Types.ObjectId,
     activity: IActivity,
     attendees: IAttendee[],
 ) {
     // get user from DB
-    const user_sender = UserModel.findById(sender);
+    const user_sender = await UserModel.findById(sender);
 
     attendees?.forEach(async (attendee: IAttendee) => {
         const skip: boolean = await checkDoNotDisturbActivity(attendee, activity);
@@ -205,7 +211,7 @@ export function sendActivityInvitationEmail(
         /* code to send email to attendee.email with activity information*/
         const email_text: string = `Invitation to Activity
 
-        You have been invited to participate in the activity "${activity.title}".
+        You have been invited to participate in the activity "${activity.title}" by ${user_sender?.username}.
         Please check this link in order to accept or decline the invitation: ${process.env.BASE_URL}/activities/${activity._id}/attendees/${attendee.name}
 
         Activity Details:
@@ -220,13 +226,13 @@ export function sendActivityInvitationEmail(
     });
 }
 
-export function sendEventInvitationEmail(
+export async function sendEventInvitationEmail(
     sender: mongoose.Types.ObjectId,
     event: IEvent,
     attendees: IAttendee[],
 ) {
     // get user from DB
-    const user_sender = UserModel.findById(sender);
+    const user_sender = await UserModel.findById(sender);
     const now: DateTime = DateTime.now();
 
     attendees?.forEach(async (attendee: IAttendee) => {
@@ -246,7 +252,7 @@ export function sendEventInvitationEmail(
         /* code to send email to attendee.email with event information*/
         const email_text: string = `Invitation to Event
 
-        You have been invited to participate in the event "${event.title}".
+        You have been invited to participate in the event "${event.title}" by ${user_sender?.username}.
         Please check this link in order to accept or decline the invitation: ${process.env.BASE_URL}/events/${event._id}/attendees/${attendee.name}
 
         Event Details:

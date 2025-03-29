@@ -160,9 +160,13 @@ async function readICalendar(
                         zone: event.end.tz || "utc",
                     }).setZone("Etc/UTC");
 
+                    if (event.rrule && !event.rrule.toString().includes("COUNT=") && !event.rrule.toString().includes("UNTIL=")) {
+                        continue;
+                    }
+
                     const createdEvent: IEvent = await EventModel.create({
                         title: event.summary || "Event without title",
-                        description: event.description || "",
+                        description: event.description || "No description",
                         date: start.toJSDate(),
                         endDate: end.toJSDate(),
                         location: event.location,
