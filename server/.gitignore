@@ -18,3 +18,9 @@ logs
 
 # Optional REPL history
 .node_repl_history
+
+.env
+
+dist/
+
+node_modules/
