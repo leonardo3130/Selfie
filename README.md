@@ -8,7 +8,6 @@ Il nostro progetto implementa in tutte le sue componenti le estensioni 18-27 ind
 | Leonardo Po | Andrea Fiorellino | Luca SIlvestri |
 |--|--|--|
 | 1069156 | 1089150 | 1080369 |
-|--|--|--|
 | leonardo.po@studio.unibo.it | andrea.fiorellino@studio.unibo.it | luca.silvestri9@studio.unibo.it |
 
 ## Suddivisione del lavoro
